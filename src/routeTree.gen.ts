@@ -10,14 +10,22 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AboutRouteImport } from './routes/about'
 import { Route as CoinsRouteImport } from './routes/coins'
 import { Route as CrateKeysRouteImport } from './routes/crate-keys'
+import { Route as NewsRouteImport } from './routes/news'
 import { Route as RanksRouteImport } from './routes/ranks'
+import { Route as StaffRouteImport } from './routes/staff'
 import { Route as StoreRouteImport } from './routes/store'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AboutRoute = AboutRouteImport.update({
+  id: '/about',
+  path: '/about',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CoinsRoute = CoinsRouteImport.update({
@@ -30,9 +38,19 @@ const CrateKeysRoute = CrateKeysRouteImport.update({
   path: '/crate-keys',
   getParentRoute: () => rootRouteImport,
 } as any)
+const NewsRoute = NewsRouteImport.update({
+  id: '/news',
+  path: '/news',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const RanksRoute = RanksRouteImport.update({
   id: '/ranks',
   path: '/ranks',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const StaffRoute = StaffRouteImport.update({
+  id: '/staff',
+  path: '/staff',
   getParentRoute: () => rootRouteImport,
 } as any)
 const StoreRoute = StoreRouteImport.update({
@@ -43,39 +61,76 @@ const StoreRoute = StoreRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/about': typeof AboutRoute
   '/coins': typeof CoinsRoute
   '/crate-keys': typeof CrateKeysRoute
+  '/news': typeof NewsRoute
   '/ranks': typeof RanksRoute
+  '/staff': typeof StaffRoute
   '/store': typeof StoreRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/about': typeof AboutRoute
   '/coins': typeof CoinsRoute
   '/crate-keys': typeof CrateKeysRoute
+  '/news': typeof NewsRoute
   '/ranks': typeof RanksRoute
+  '/staff': typeof StaffRoute
   '/store': typeof StoreRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/about': typeof AboutRoute
   '/coins': typeof CoinsRoute
   '/crate-keys': typeof CrateKeysRoute
+  '/news': typeof NewsRoute
   '/ranks': typeof RanksRoute
+  '/staff': typeof StaffRoute
   '/store': typeof StoreRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/coins' | '/crate-keys' | '/ranks' | '/store'
+  fullPaths:
+    | '/'
+    | '/about'
+    | '/coins'
+    | '/crate-keys'
+    | '/news'
+    | '/ranks'
+    | '/staff'
+    | '/store'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/coins' | '/crate-keys' | '/ranks' | '/store'
-  id: '__root__' | '/' | '/coins' | '/crate-keys' | '/ranks' | '/store'
+  to:
+    | '/'
+    | '/about'
+    | '/coins'
+    | '/crate-keys'
+    | '/news'
+    | '/ranks'
+    | '/staff'
+    | '/store'
+  id:
+    | '__root__'
+    | '/'
+    | '/about'
+    | '/coins'
+    | '/crate-keys'
+    | '/news'
+    | '/ranks'
+    | '/staff'
+    | '/store'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AboutRoute: typeof AboutRoute
   CoinsRoute: typeof CoinsRoute
   CrateKeysRoute: typeof CrateKeysRoute
+  NewsRoute: typeof NewsRoute
   RanksRoute: typeof RanksRoute
+  StaffRoute: typeof StaffRoute
   StoreRoute: typeof StoreRoute
 }
 
@@ -86,6 +141,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/about': {
+      id: '/about'
+      path: '/about'
+      fullPath: '/about'
+      preLoaderRoute: typeof AboutRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/coins': {
@@ -102,11 +164,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CrateKeysRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/news': {
+      id: '/news'
+      path: '/news'
+      fullPath: '/news'
+      preLoaderRoute: typeof NewsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/ranks': {
       id: '/ranks'
       path: '/ranks'
       fullPath: '/ranks'
       preLoaderRoute: typeof RanksRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/staff': {
+      id: '/staff'
+      path: '/staff'
+      fullPath: '/staff'
+      preLoaderRoute: typeof StaffRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/store': {
@@ -121,9 +197,12 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AboutRoute: AboutRoute,
   CoinsRoute: CoinsRoute,
   CrateKeysRoute: CrateKeysRoute,
+  NewsRoute: NewsRoute,
   RanksRoute: RanksRoute,
+  StaffRoute: StaffRoute,
   StoreRoute: StoreRoute,
 }
 export const routeTree = rootRouteImport
