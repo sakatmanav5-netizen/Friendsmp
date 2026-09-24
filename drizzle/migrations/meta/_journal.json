@@ -1,5 +1,13 @@
 {
   "version": "7",
   "dialect": "postgresql",
-  "entries": []
+  "entries": [
+    {
+      "idx": 0,
+      "version": "7",
+      "when": 1790231677299,
+      "tag": "0000_friendsmp_core",
+      "breakpoints": true
+    }
+  ]
 }
