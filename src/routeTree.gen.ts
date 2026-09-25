@@ -17,6 +17,7 @@ import { Route as NewsRouteImport } from './routes/news'
 import { Route as RanksRouteImport } from './routes/ranks'
 import { Route as StaffRouteImport } from './routes/staff'
 import { Route as StoreRouteImport } from './routes/store'
+import { Route as ApiPublicBridgeRouteImport } from './routes/api/public/bridge'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -58,6 +59,11 @@ const StoreRoute = StoreRouteImport.update({
   path: '/store',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicBridgeRoute = ApiPublicBridgeRouteImport.update({
+  id: '/api/public/bridge',
+  path: '/api/public/bridge',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -68,6 +74,7 @@ export interface FileRoutesByFullPath {
   '/ranks': typeof RanksRoute
   '/staff': typeof StaffRoute
   '/store': typeof StoreRoute
+  '/api/public/bridge': typeof ApiPublicBridgeRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -78,6 +85,7 @@ export interface FileRoutesByTo {
   '/ranks': typeof RanksRoute
   '/staff': typeof StaffRoute
   '/store': typeof StoreRoute
+  '/api/public/bridge': typeof ApiPublicBridgeRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -89,6 +97,7 @@ export interface FileRoutesById {
   '/ranks': typeof RanksRoute
   '/staff': typeof StaffRoute
   '/store': typeof StoreRoute
+  '/api/public/bridge': typeof ApiPublicBridgeRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -101,6 +110,7 @@ export interface FileRouteTypes {
     | '/ranks'
     | '/staff'
     | '/store'
+    | '/api/public/bridge'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -111,6 +121,7 @@ export interface FileRouteTypes {
     | '/ranks'
     | '/staff'
     | '/store'
+    | '/api/public/bridge'
   id:
     | '__root__'
     | '/'
@@ -121,6 +132,7 @@ export interface FileRouteTypes {
     | '/ranks'
     | '/staff'
     | '/store'
+    | '/api/public/bridge'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -132,6 +144,7 @@ export interface RootRouteChildren {
   RanksRoute: typeof RanksRoute
   StaffRoute: typeof StaffRoute
   StoreRoute: typeof StoreRoute
+  ApiPublicBridgeRoute: typeof ApiPublicBridgeRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -192,6 +205,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof StoreRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/bridge': {
+      id: '/api/public/bridge'
+      path: '/api/public/bridge'
+      fullPath: '/api/public/bridge'
+      preLoaderRoute: typeof ApiPublicBridgeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -204,6 +224,7 @@ const rootRouteChildren: RootRouteChildren = {
   RanksRoute: RanksRoute,
   StaffRoute: StaffRoute,
   StoreRoute: StoreRoute,
+  ApiPublicBridgeRoute: ApiPublicBridgeRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
