@@ -13,6 +13,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as CoinsRouteImport } from './routes/coins'
 import { Route as CrateKeysRouteImport } from './routes/crate-keys'
+import { Route as FsmpControlRouteImport } from './routes/fsmp-control'
 import { Route as NewsRouteImport } from './routes/news'
 import { Route as RanksRouteImport } from './routes/ranks'
 import { Route as StaffRouteImport } from './routes/staff'
@@ -37,6 +38,11 @@ const CoinsRoute = CoinsRouteImport.update({
 const CrateKeysRoute = CrateKeysRouteImport.update({
   id: '/crate-keys',
   path: '/crate-keys',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FsmpControlRoute = FsmpControlRouteImport.update({
+  id: '/fsmp-control',
+  path: '/fsmp-control',
   getParentRoute: () => rootRouteImport,
 } as any)
 const NewsRoute = NewsRouteImport.update({
@@ -70,6 +76,7 @@ export interface FileRoutesByFullPath {
   '/about': typeof AboutRoute
   '/coins': typeof CoinsRoute
   '/crate-keys': typeof CrateKeysRoute
+  '/fsmp-control': typeof FsmpControlRoute
   '/news': typeof NewsRoute
   '/ranks': typeof RanksRoute
   '/staff': typeof StaffRoute
@@ -81,6 +88,7 @@ export interface FileRoutesByTo {
   '/about': typeof AboutRoute
   '/coins': typeof CoinsRoute
   '/crate-keys': typeof CrateKeysRoute
+  '/fsmp-control': typeof FsmpControlRoute
   '/news': typeof NewsRoute
   '/ranks': typeof RanksRoute
   '/staff': typeof StaffRoute
@@ -93,6 +101,7 @@ export interface FileRoutesById {
   '/about': typeof AboutRoute
   '/coins': typeof CoinsRoute
   '/crate-keys': typeof CrateKeysRoute
+  '/fsmp-control': typeof FsmpControlRoute
   '/news': typeof NewsRoute
   '/ranks': typeof RanksRoute
   '/staff': typeof StaffRoute
@@ -106,6 +115,7 @@ export interface FileRouteTypes {
     | '/about'
     | '/coins'
     | '/crate-keys'
+    | '/fsmp-control'
     | '/news'
     | '/ranks'
     | '/staff'
@@ -117,6 +127,7 @@ export interface FileRouteTypes {
     | '/about'
     | '/coins'
     | '/crate-keys'
+    | '/fsmp-control'
     | '/news'
     | '/ranks'
     | '/staff'
@@ -128,6 +139,7 @@ export interface FileRouteTypes {
     | '/about'
     | '/coins'
     | '/crate-keys'
+    | '/fsmp-control'
     | '/news'
     | '/ranks'
     | '/staff'
@@ -140,6 +152,7 @@ export interface RootRouteChildren {
   AboutRoute: typeof AboutRoute
   CoinsRoute: typeof CoinsRoute
   CrateKeysRoute: typeof CrateKeysRoute
+  FsmpControlRoute: typeof FsmpControlRoute
   NewsRoute: typeof NewsRoute
   RanksRoute: typeof RanksRoute
   StaffRoute: typeof StaffRoute
@@ -175,6 +188,13 @@ declare module '@tanstack/react-router' {
       path: '/crate-keys'
       fullPath: '/crate-keys'
       preLoaderRoute: typeof CrateKeysRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/fsmp-control': {
+      id: '/fsmp-control'
+      path: '/fsmp-control'
+      fullPath: '/fsmp-control'
+      preLoaderRoute: typeof FsmpControlRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/news': {
@@ -220,6 +240,7 @@ const rootRouteChildren: RootRouteChildren = {
   AboutRoute: AboutRoute,
   CoinsRoute: CoinsRoute,
   CrateKeysRoute: CrateKeysRoute,
+  FsmpControlRoute: FsmpControlRoute,
   NewsRoute: NewsRoute,
   RanksRoute: RanksRoute,
   StaffRoute: StaffRoute,
