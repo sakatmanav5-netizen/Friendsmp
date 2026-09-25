@@ -13,10 +13,12 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as CoinsRouteImport } from './routes/coins'
 import { Route as CrateKeysRouteImport } from './routes/crate-keys'
+import { Route as FsmpControlRouteImport } from './routes/fsmp-control'
 import { Route as NewsRouteImport } from './routes/news'
 import { Route as RanksRouteImport } from './routes/ranks'
 import { Route as StaffRouteImport } from './routes/staff'
 import { Route as StoreRouteImport } from './routes/store'
+import { Route as ApiPublicBridgeRouteImport } from './routes/api/public/bridge'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -36,6 +38,11 @@ const CoinsRoute = CoinsRouteImport.update({
 const CrateKeysRoute = CrateKeysRouteImport.update({
   id: '/crate-keys',
   path: '/crate-keys',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FsmpControlRoute = FsmpControlRouteImport.update({
+  id: '/fsmp-control',
+  path: '/fsmp-control',
   getParentRoute: () => rootRouteImport,
 } as any)
 const NewsRoute = NewsRouteImport.update({
@@ -58,26 +65,35 @@ const StoreRoute = StoreRouteImport.update({
   path: '/store',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicBridgeRoute = ApiPublicBridgeRouteImport.update({
+  id: '/api/public/bridge',
+  path: '/api/public/bridge',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/coins': typeof CoinsRoute
   '/crate-keys': typeof CrateKeysRoute
+  '/fsmp-control': typeof FsmpControlRoute
   '/news': typeof NewsRoute
   '/ranks': typeof RanksRoute
   '/staff': typeof StaffRoute
   '/store': typeof StoreRoute
+  '/api/public/bridge': typeof ApiPublicBridgeRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/coins': typeof CoinsRoute
   '/crate-keys': typeof CrateKeysRoute
+  '/fsmp-control': typeof FsmpControlRoute
   '/news': typeof NewsRoute
   '/ranks': typeof RanksRoute
   '/staff': typeof StaffRoute
   '/store': typeof StoreRoute
+  '/api/public/bridge': typeof ApiPublicBridgeRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -85,10 +101,12 @@ export interface FileRoutesById {
   '/about': typeof AboutRoute
   '/coins': typeof CoinsRoute
   '/crate-keys': typeof CrateKeysRoute
+  '/fsmp-control': typeof FsmpControlRoute
   '/news': typeof NewsRoute
   '/ranks': typeof RanksRoute
   '/staff': typeof StaffRoute
   '/store': typeof StoreRoute
+  '/api/public/bridge': typeof ApiPublicBridgeRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -97,30 +115,36 @@ export interface FileRouteTypes {
     | '/about'
     | '/coins'
     | '/crate-keys'
+    | '/fsmp-control'
     | '/news'
     | '/ranks'
     | '/staff'
     | '/store'
+    | '/api/public/bridge'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/about'
     | '/coins'
     | '/crate-keys'
+    | '/fsmp-control'
     | '/news'
     | '/ranks'
     | '/staff'
     | '/store'
+    | '/api/public/bridge'
   id:
     | '__root__'
     | '/'
     | '/about'
     | '/coins'
     | '/crate-keys'
+    | '/fsmp-control'
     | '/news'
     | '/ranks'
     | '/staff'
     | '/store'
+    | '/api/public/bridge'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -128,10 +152,12 @@ export interface RootRouteChildren {
   AboutRoute: typeof AboutRoute
   CoinsRoute: typeof CoinsRoute
   CrateKeysRoute: typeof CrateKeysRoute
+  FsmpControlRoute: typeof FsmpControlRoute
   NewsRoute: typeof NewsRoute
   RanksRoute: typeof RanksRoute
   StaffRoute: typeof StaffRoute
   StoreRoute: typeof StoreRoute
+  ApiPublicBridgeRoute: typeof ApiPublicBridgeRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -164,6 +190,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CrateKeysRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/fsmp-control': {
+      id: '/fsmp-control'
+      path: '/fsmp-control'
+      fullPath: '/fsmp-control'
+      preLoaderRoute: typeof FsmpControlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/news': {
       id: '/news'
       path: '/news'
@@ -192,6 +225,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof StoreRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/bridge': {
+      id: '/api/public/bridge'
+      path: '/api/public/bridge'
+      fullPath: '/api/public/bridge'
+      preLoaderRoute: typeof ApiPublicBridgeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -200,10 +240,12 @@ const rootRouteChildren: RootRouteChildren = {
   AboutRoute: AboutRoute,
   CoinsRoute: CoinsRoute,
   CrateKeysRoute: CrateKeysRoute,
+  FsmpControlRoute: FsmpControlRoute,
   NewsRoute: NewsRoute,
   RanksRoute: RanksRoute,
   StaffRoute: StaffRoute,
   StoreRoute: StoreRoute,
+  ApiPublicBridgeRoute: ApiPublicBridgeRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

@@ -122,6 +122,20 @@ function RootShell({ children }: { children: ReactNode }) {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
+  const router = useRouter();
+
+  // Hidden owner portal shortcut: Ctrl+Shift+A
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === "a") {
+        e.preventDefault();
+        router.navigate({ to: "/fsmp-control" });
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [router]);
+
 
   return (
     <QueryClientProvider client={queryClient}>

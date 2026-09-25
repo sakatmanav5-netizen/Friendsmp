@@ -88,7 +88,7 @@ export const getAdminData = createServerFn({ method: "GET" })
       orders: orders.data ?? [],
       jobs: jobs.data ?? [],
       products: products.data ?? [],
-      content: (settingsMap["content"] ?? {}) as Record<string, unknown>,
+      content: (settingsMap["content"] ?? {}) as Record<string, any>,
       bridgeToken: staff.role === "owner" ? ((settingsMap["bridge"] as any)?.token ?? null) : null,
       staff: (roles.data ?? []).map((r) => ({
         userId: r.user_id,
