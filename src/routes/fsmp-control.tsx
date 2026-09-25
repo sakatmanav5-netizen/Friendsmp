@@ -78,7 +78,10 @@ function Login() {
             options: { emailRedirectTo: `${window.location.origin}/fsmp-control` },
           });
     setBusy(false);
-    if (res.error) return toast.error(res.error.message);
+    if (res.error) {
+      toast.error(res.error.message);
+      return;
+    }
     if (mode === "up") toast.success("Check your email to confirm your account.");
   };
 
@@ -145,7 +148,7 @@ function Dashboard() {
           .filter((t) => me.data!.isOwner || (t !== "access" && t !== "bridge"))
           .map((t) => (
             <button key={t} onClick={() => setTab(t)} className={tab === t ? btn : ghost}>
-              {t[0].toUpperCase() + t.slice(1)}
+              {t.charAt(0).toUpperCase() + t.slice(1)}
             </button>
           ))}
       </nav>
@@ -353,7 +356,7 @@ function Content({ content, onDone }: { content: Record<string, any>; onDone: ()
           </label>
         ))}
         <label className="block text-[11px] text-muted-foreground">Theme colour
-          <select className={input} value={c.accent} onChange={(e) => setC({ ...c, accent: e.target.value })}>
+          <select className={input} value={c["accent"]} onChange={(e) => setC({ ...c, accent: e.target.value })}>
             <option value="purple">Neon purple</option>
             <option value="emerald">Emerald green</option>
             <option value="cyan">Cyber cyan</option>
@@ -363,7 +366,7 @@ function Content({ content, onDone }: { content: Record<string, any>; onDone: ()
       <h3 className="pt-2 font-display font-black">Latest News banner</h3>
       <div className="grid gap-3 md:grid-cols-3">
         {(["tag", "title", "body"] as const).map((k) => (
-          <input key={k} className={input} placeholder={k} value={c.news[k] ?? ""} onChange={(e) => setC({ ...c, news: { ...c.news, [k]: e.target.value } })} />
+          <input key={k} className={input} placeholder={k} value={c["news"][k] ?? ""} onChange={(e) => setC({ ...c, news: { ...c["news"], [k]: e.target.value } })} />
         ))}
       </div>
       <button disabled={busy} className={btn} onClick={() => run(() => save({ data: { content: c } }), "Content saved", onDone)}>
