@@ -2,12 +2,22 @@ import { useState } from "react";
 import { ArrowRight, Check, Crown, Loader2, X } from "lucide-react";
 import { toast } from "sonner";
 
+import { useQuery } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
+
 import type { Product } from "@/lib/catalog";
+import { createOrder, getSiteData } from "@/lib/public.functions";
 
 const USERNAME_RE = /^[A-Za-z0-9_]{3,16}$/;
 
 export function ProductGrid({ items }: { items: Product[] }) {
   const [selected, setSelected] = useState<Product | null>(null);
+  const fetchSite = useServerFn(getSiteData);
+  const { data } = useQuery({ queryKey: ["site"], queryFn: () => fetchSite() });
+  if (data) {
+    const cats = new Set(items.map((i) => i.category));
+    items = data.products.filter((p) => cats.has(p.category as Product["category"])) as Product[];
+  }
 
   return (
     <>
@@ -57,6 +67,7 @@ function CheckoutDialog({ product, onClose }: { product: Product; onClose: () =>
   const [confirm, setConfirm] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const placeOrder = useServerFn(createOrder);
 
   const submit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -71,13 +82,16 @@ function CheckoutDialog({ product, onClose }: { product: Product; onClose: () =>
     }
     setError(null);
     setBusy(true);
-    setTimeout(() => {
-      setBusy(false);
-      onClose();
-      toast.success("Order saved", {
-        description: `${product.name} for ${name} — payment checkout is being connected.`,
-      });
-    }, 700);
+    placeOrder({ data: { productId: product.id, username: name } })
+      .then((order) => {
+        onClose();
+        toast.success(`Order ${order.reference} saved`, {
+          description: `${order.product_name} for ${order.minecraft_username}. Share this reference with staff when paying — rewards arrive in-game automatically once confirmed.`,
+          duration: 12000,
+        });
+      })
+      .catch((err: Error) => setError(err.message || "Could not place order."))
+      .finally(() => setBusy(false));
   };
 
   return (
