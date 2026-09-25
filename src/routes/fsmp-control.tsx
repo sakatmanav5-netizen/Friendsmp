@@ -344,7 +344,7 @@ const contentFields: [string, string][] = [
 function Content({ content, onDone }: { content: Record<string, any>; onDone: () => void }) {
   const save = useServerFn(saveContent);
   const { busy, run } = useAction();
-  const [c, setC] = useState<Record<string, any>>({ accent: "purple", ...content, news: { ...(content.news ?? {}) } });
+  const [c, setC] = useState<Record<string, any>>({ accent: "purple", ...content, news: { ...(content["news"] ?? {}) } });
 
   return (
     <div className="space-y-3">
