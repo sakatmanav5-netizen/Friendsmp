@@ -6,7 +6,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 
 import type { Product } from "@/lib/catalog";
-import { createOrder, getSiteData } from "@/lib/public.functions";
+import { createOrder, getSiteData, verifyPayment } from "@/lib/public.functions";
 
 const USERNAME_RE = /^[A-Za-z0-9_]{3,16}$/;
 
@@ -68,6 +68,7 @@ function CheckoutDialog({ product, onClose }: { product: Product; onClose: () =>
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const placeOrder = useServerFn(createOrder);
+  const verify = useServerFn(verifyPayment);
 
   const submit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -83,7 +84,18 @@ function CheckoutDialog({ product, onClose }: { product: Product; onClose: () =>
     setError(null);
     setBusy(true);
     placeOrder({ data: { productId: product.id, username: name } })
-      .then((order) => {
+      .then(async (order) => {
+        if (order.razorpay) {
+          await openRazorpay(order.razorpay, order.product_name, async (r) => {
+            await verify({ data: { orderId: r.razorpay_order_id, paymentId: r.razorpay_payment_id, signature: r.razorpay_signature } });
+            onClose();
+            toast.success(`Payment received — ${order.reference}`, {
+              description: `${order.product_name} will be delivered to ${order.minecraft_username} in-game within a minute.`,
+              duration: 12000,
+            });
+          });
+          return;
+        }
         onClose();
         toast.success(`Order ${order.reference} saved`, {
           description: `${order.product_name} for ${order.minecraft_username}. Share this reference with staff when paying — rewards arrive in-game automatically once confirmed.`,
@@ -159,4 +171,35 @@ function CheckoutDialog({ product, onClose }: { product: Product; onClose: () =>
       </form>
     </div>
   );
+}
+
+type RzpResult = { razorpay_order_id: string; razorpay_payment_id: string; razorpay_signature: string };
+
+function openRazorpay(
+  rp: { keyId: string; orderId: string; amount: number; currency: string },
+  description: string,
+  onPaid: (r: RzpResult) => Promise<void>,
+) {
+  return new Promise<void>((resolve, reject) => {
+    const start = () => {
+      const Rzp = (window as unknown as { Razorpay: new (o: object) => { open: () => void } }).Razorpay;
+      new Rzp({
+        key: rp.keyId,
+        order_id: rp.orderId,
+        amount: rp.amount,
+        currency: rp.currency,
+        name: "FriendSMP",
+        description,
+        theme: { color: "#8b5cf6" },
+        handler: (r: RzpResult) => onPaid(r).then(resolve, reject),
+        modal: { ondismiss: () => reject(new Error("Payment cancelled.")) },
+      }).open();
+    };
+    if ((window as unknown as { Razorpay?: unknown }).Razorpay) return start();
+    const s = document.createElement("script");
+    s.src = "https://checkout.razorpay.com/v1/checkout.js";
+    s.onload = start;
+    s.onerror = () => reject(new Error("Could not load payment window."));
+    document.body.appendChild(s);
+  });
 }

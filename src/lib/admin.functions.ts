@@ -89,6 +89,15 @@ export const getAdminData = createServerFn({ method: "GET" })
       jobs: jobs.data ?? [],
       products: products.data ?? [],
       content: (settingsMap["content"] ?? {}) as Record<string, any>,
+      razorpay:
+        staff.role === "owner"
+          ? {
+              keyId: ((settingsMap["razorpay"] as any)?.keyId as string) ?? "",
+              hasSecret: Boolean((settingsMap["razorpay"] as any)?.keySecret),
+              hasWebhook: Boolean((settingsMap["razorpay"] as any)?.webhookSecret),
+              currency: ((settingsMap["razorpay"] as any)?.currency as string) ?? "INR",
+            }
+          : null,
       bridgeToken: staff.role === "owner" ? ((settingsMap["bridge"] as any)?.token ?? null) : null,
       staff: (roles.data ?? []).map((r) => ({
         userId: r.user_id,
@@ -343,4 +352,37 @@ export const rotateBridgeToken = createServerFn({ method: "POST" })
     if (error) throw new Error(error.message);
     await audit(staff, "bridge.rotate", "site_settings/bridge");
     return { token };
+  });
+
+/** Owner only: store Razorpay keys. Blank secret fields keep the existing value. */
+export const saveRazorpay = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d) =>
+    z
+      .object({
+        keyId: z.string().trim().max(100),
+        keySecret: z.string().trim().max(200),
+        webhookSecret: z.string().trim().max(200),
+        currency: z.string().trim().length(3),
+      })
+      .parse(d),
+  )
+  .handler(async ({ data, context }) => {
+    const staff = await requireStaff(context);
+    if (staff.role !== "owner") throw new Error("Only the owner can change payments.");
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: cur } = await supabaseAdmin.from("site_settings").select("value").eq("key", "razorpay").maybeSingle();
+    const old = (cur?.value ?? {}) as Record<string, string>;
+    const value = {
+      keyId: data.keyId,
+      keySecret: data.keySecret || old["keySecret"] || "",
+      webhookSecret: data.webhookSecret || old["webhookSecret"] || "",
+      currency: data.currency.toUpperCase(),
+    };
+    const { error } = await supabaseAdmin
+      .from("site_settings")
+      .upsert({ key: "razorpay", value: value as never, updated_at: new Date().toISOString() });
+    if (error) throw new Error(error.message);
+    await audit(staff, "payments.save", "site_settings/razorpay");
+    return { ok: true };
   });

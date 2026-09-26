@@ -4,7 +4,7 @@ import { Copy, Globe, Menu, Play } from "lucide-react";
 import { toast } from "sonner";
 
 import { Sidebar } from "@/components/site/Sidebar";
-import { defaultContent as c } from "@/lib/site-content";
+import { liveContent as c, useLiveContent } from "@/lib/live-content";
 
 export function copyServerIp() {
   void navigator.clipboard?.writeText(c.serverIp).catch(() => {});
@@ -22,11 +22,12 @@ export function PageShell({
   subtitle?: string;
   children: ReactNode;
 }) {
+  useLiveContent();
   const [menuOpen, setMenuOpen] = useState(false);
 
   return (
     <div className="min-h-screen canvas-glow bg-background">
-      <Sidebar open={menuOpen} onClose={() => setMenuOpen(false)} />
+      <Sidebar open={menuOpen} onClose={() => setMenuOpen(false)} brandPrefix={c.brandPrefix} brandSuffix={c.brandSuffix} />
       <main className="lg:pl-[228px]">
         <div className="mx-auto max-w-[1180px] px-3 py-4 sm:px-5 sm:py-6">
           <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3">

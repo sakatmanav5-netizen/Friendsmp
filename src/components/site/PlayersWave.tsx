@@ -16,9 +16,9 @@ export function PlayersWave({ points = defaultPoints, className = "" }: Props) {
   ]);
 
   const path = coords
-    .map(([x, y], i) => {
+    .map(([x = 0, y = 0], i) => {
       if (i === 0) return `M ${x} ${y}`;
-      const [px, py] = coords[i - 1]!;
+      const [px = 0, py = 0] = coords[i - 1] ?? [];
       const cx = (px + x) / 2;
       return `C ${cx} ${py}, ${cx} ${y}, ${x} ${y}`;
     })

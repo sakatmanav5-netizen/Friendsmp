@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 
 import { PageShell, copyServerIp } from "@/components/site/PageShell";
-import { defaultContent as c } from "@/lib/site-content";
+import { useLiveContent } from "@/lib/live-content";
 
 export const Route = createFileRoute("/about")({
   head: () => ({
@@ -21,7 +21,12 @@ export const Route = createFileRoute("/about")({
       { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
-  component: () => (
+  component: AboutPage,
+});
+
+function AboutPage() {
+  const c = useLiveContent();
+  return (
     <PageShell
       kicker="ABOUT"
       title="About FriendSMP"
@@ -65,5 +70,5 @@ export const Route = createFileRoute("/about")({
         </div>
       </div>
     </PageShell>
-  ),
-});
+  );
+}
