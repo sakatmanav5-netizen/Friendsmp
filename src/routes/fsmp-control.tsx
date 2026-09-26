@@ -16,6 +16,7 @@ import {
   saveProduct,
   setEditorAccess,
   rotateBridgeToken,
+  saveRazorpay,
 } from "@/lib/admin.functions";
 
 export const Route = createFileRoute("/fsmp-control")({
@@ -160,7 +161,7 @@ function Dashboard() {
           {tab === "products" && <Products products={data.data.products} onDone={refresh} />}
           {tab === "content" && <Content content={data.data.content} onDone={refresh} />}
           {tab === "access" && <Access staff={data.data.staff} onDone={refresh} />}
-          {tab === "bridge" && <Bridge token={data.data.bridgeToken} onDone={refresh} />}
+          {tab === "bridge" && (<><Payments cfg={data.data.razorpay} onDone={refresh} /><Bridge token={data.data.bridgeToken} onDone={refresh} /></>)}
           {tab === "audit" && <Audit rows={data.data.audit} />}
         </section>
       )}
@@ -398,6 +399,31 @@ function Access({ staff, onDone }: { staff: any[]; onDone: () => void }) {
           </li>
         ))}
       </ul>
+    </div>
+  );
+}
+
+function Payments({ cfg, onDone }: { cfg: any; onDone: () => void }) {
+  const save = useServerFn(saveRazorpay);
+  const { busy, run } = useAction();
+  const [f, setF] = useState({ keyId: cfg?.keyId ?? "", keySecret: "", webhookSecret: "", currency: cfg?.currency ?? "INR" });
+  if (!cfg) return null;
+  const hook = `${window.location.origin}/api/public/razorpay-webhook`;
+  const input = "w-full rounded-lg bg-background/60 px-3 py-2 text-[13px]";
+  return (
+    <div className="mb-8 space-y-3">
+      <h2 className="font-display text-xl font-black">Online Payments (Razorpay)</h2>
+      <p className="text-[12px] text-muted-foreground">
+        Razorpay Dashboard → Account & Settings → API Keys se Key ID aur Key Secret yahan daalein. Webhooks me URL <code className="break-all">{hook}</code> add karein, event "payment.captured" chunein, aur wahi secret yahan daalein. Save ke baad store me payment window khulegi aur paisa aate hi rewards automatic in-game milenge.
+      </p>
+      <p className="text-[12px]">Status: {cfg.keyId && cfg.hasSecret ? "Connected" : "Not connected"}{cfg.hasWebhook ? " · Webhook set" : ""}</p>
+      <div className="grid gap-2 sm:grid-cols-2">
+        <input className={input} placeholder="Key ID (rzp_live_...)" value={f.keyId} onChange={(e) => setF({ ...f, keyId: e.target.value })} />
+        <input className={input} type="password" placeholder={cfg.hasSecret ? "Key Secret (saved — blank = keep)" : "Key Secret"} value={f.keySecret} onChange={(e) => setF({ ...f, keySecret: e.target.value })} />
+        <input className={input} type="password" placeholder={cfg.hasWebhook ? "Webhook Secret (saved — blank = keep)" : "Webhook Secret"} value={f.webhookSecret} onChange={(e) => setF({ ...f, webhookSecret: e.target.value })} />
+        <input className={input} placeholder="Currency (INR)" maxLength={3} value={f.currency} onChange={(e) => setF({ ...f, currency: e.target.value })} />
+      </div>
+      <button disabled={busy} className={ghost} onClick={() => run(() => save({ data: f }), "Payment settings saved", onDone)}>Save payments</button>
     </div>
   );
 }
