@@ -4,7 +4,7 @@ import { Copy, Globe, Menu, Play } from "lucide-react";
 import { toast } from "sonner";
 
 import { Sidebar } from "@/components/site/Sidebar";
-import { defaultContent as c } from "@/lib/site-content";
+import { liveContent as c, useLiveContent } from "@/lib/live-content";
 
 export function copyServerIp() {
   void navigator.clipboard?.writeText(c.serverIp).catch(() => {});
@@ -22,6 +22,7 @@ export function PageShell({
   subtitle?: string;
   children: ReactNode;
 }) {
+  useLiveContent();
   const [menuOpen, setMenuOpen] = useState(false);
 
   return (

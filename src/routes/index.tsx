@@ -26,7 +26,8 @@ import cardCoins from "@/assets/card-coins.jpg";
 import newsArt from "@/assets/news-xp.jpg";
 import { Sidebar } from "@/components/site/Sidebar";
 import { PlayersWave } from "@/components/site/PlayersWave";
-import { defaultContent as c, perks } from "@/lib/site-content";
+import { perks } from "@/lib/site-content";
+import { useLiveContent } from "@/lib/live-content";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -53,6 +54,7 @@ export const Route = createFileRoute("/")({
 const perkIcons = [Flame, ShieldCheck, Zap, Heart];
 
 function Home() {
+  const c = useLiveContent();
   const [menuOpen, setMenuOpen] = useState(false);
 
   const copyIp = async () => {
