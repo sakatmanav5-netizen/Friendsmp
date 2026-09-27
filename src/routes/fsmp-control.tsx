@@ -385,6 +385,16 @@ function ProductEditor({ p, onDone }: { p: any; onDone: () => void }) {
     <div className="space-y-2 rounded-2xl border border-border p-4">
       <div className="flex items-center justify-between text-[10px] font-bold tracking-widest text-neon-soft">
         <span>{p.category.toUpperCase()} · {p.id}</span>
+        <button
+          disabled={busy}
+          className="text-[10px] font-bold text-destructive hover:underline"
+          onClick={() => {
+            if (!confirm(`Delete "${p.name}" permanently? Past orders stay in the ledger.`)) return;
+            run(() => del({ data: { id: p.id } }), `${p.name} deleted`, onDone);
+          }}
+        >
+          DELETE
+        </button>
       </div>
       <div className="grid grid-cols-[1fr_100px] gap-2">
         <input className={input} value={f.name} onChange={(e) => setF({ ...f, name: e.target.value })} />
