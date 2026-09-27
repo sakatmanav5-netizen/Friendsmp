@@ -14,6 +14,8 @@ import {
   fixUsername,
   saveContent,
   saveProduct,
+  createProduct,
+  deleteProduct,
   setEditorAccess,
   rotateBridgeToken,
   saveRazorpay,
@@ -365,6 +367,7 @@ function Products({ products, onDone }: { products: any[]; onDone: () => void })
 
 function ProductEditor({ p, onDone }: { p: any; onDone: () => void }) {
   const save = useServerFn(saveProduct);
+  const del = useServerFn(deleteProduct);
   const { busy, run } = useAction();
   const [f, setF] = useState({
     name: p.name as string,
