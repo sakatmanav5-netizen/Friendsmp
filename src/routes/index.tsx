@@ -27,7 +27,8 @@ import newsArt from "@/assets/news-xp.jpg";
 import { Sidebar } from "@/components/site/Sidebar";
 import { PlayersWave } from "@/components/site/PlayersWave";
 import { perks } from "@/lib/site-content";
-import { useLiveContent } from "@/lib/live-content";
+import { useLiveContent, useLiveExtras } from "@/lib/live-content";
+import { useLiveServerStatus } from "@/lib/live-status";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -53,8 +54,59 @@ export const Route = createFileRoute("/")({
 
 const perkIcons = [Flame, ShieldCheck, Zap, Heart];
 
+type StoreCardKey = "ranks" | "crates" | "coins";
+type StoreCardData = {
+  key: StoreCardKey;
+  image: string;
+  ring: string;
+  badge?: string;
+  title: string;
+  items: string;
+  cta: string;
+  to: string;
+};
+
+function orderedStoreCards(extras: ReturnType<typeof useLiveExtras>): StoreCardData[] {
+  const base: Record<StoreCardKey, StoreCardData> = {
+    ranks: {
+      key: "ranks",
+      image: extras.media.cardImages?.ranks || cardRanks,
+      ring: "neon-ring",
+      badge: "Most Popular",
+      title: "Ranks",
+      items: "VIP • MVP • Legend",
+      cta: "Explore",
+      to: "/ranks",
+    },
+    crates: {
+      key: "crates",
+      image: extras.media.cardImages?.crates || cardCrates,
+      ring: "cyan-ring",
+      title: "Crate Keys",
+      items: "Epic • Vote • Monthly",
+      cta: "View Keys",
+      to: "/crate-keys",
+    },
+    coins: {
+      key: "coins",
+      image: extras.media.cardImages?.coins || cardCoins,
+      ring: "gold-ring",
+      title: "Coins",
+      items: "100 • 500 • 1000",
+      cta: "Buy Coins",
+      to: "/coins",
+    },
+  };
+  const order = extras.design.homeCardOrder?.length === 3 ? extras.design.homeCardOrder : ["ranks", "crates", "coins"];
+  return order.map((k) => base[k as StoreCardKey]);
+}
+
 function Home() {
   const c = useLiveContent();
+  const extras = useLiveExtras();
+  const status = useLiveServerStatus();
+  const players = status.players >= 0 ? status.players : c.playerCount;
+  const online = status.players >= 0 ? status.online : true;
   const [menuOpen, setMenuOpen] = useState(false);
 
   const copyIp = async () => {
@@ -85,7 +137,7 @@ function Home() {
           {/* ===== HERO ===== */}
           <section className="relative overflow-hidden rounded-3xl neon-ring">
             <img
-              src={hero}
+              src={extras.media.heroImage || hero}
               alt="FriendSMP purple castle world"
               width={1600}
               height={912}
@@ -111,14 +163,14 @@ function Home() {
                   >
                     <Menu className="h-4 w-4" />
                   </button>
-                  <div className="flex min-w-0 items-center gap-2 rounded-full glass px-3 py-2">
-                    <span className="h-2 w-2 shrink-0 rounded-full bg-online pulse-dot" />
+                  <div className="flex min-w-0 items-center gap-2 rounded-full glass px-3 py-2" title={status.motd || undefined}>
+                    <span className={`h-2 w-2 shrink-0 rounded-full ${online ? "bg-online pulse-dot" : "bg-destructive"}`} />
                     <span className="truncate text-[11px] font-semibold sm:text-xs">
-                      Server Online
+                      {online ? "Server Online" : "Server Offline"}
                     </span>
                     <span className="h-3 w-px shrink-0 bg-border" />
                     <span className="truncate text-[11px] font-semibold text-muted-foreground sm:text-xs">
-                      {c.playerCount} Players
+                      {players} Players
                     </span>
                   </div>
                 </div>
@@ -193,7 +245,7 @@ function Home() {
                     </div>
                     <div className="mt-1 flex items-end justify-between gap-2">
                       <span className="font-display text-3xl font-black leading-none">
-                        {c.playerCount}
+                        {players}
                       </span>
                       <PlayersWave className="h-11 w-[110px]" />
                     </div>
@@ -238,31 +290,9 @@ function Home() {
             </div>
 
             <div className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              <StoreCard
-                image={cardRanks}
-                ring="neon-ring"
-                badge="Most Popular"
-                title="Ranks"
-                items="VIP • MVP • Legend"
-                cta="Explore"
-                to="/ranks"
-              />
-              <StoreCard
-                image={cardCrates}
-                ring="cyan-ring"
-                title="Crate Keys"
-                items="Epic • Vote • Monthly"
-                cta="View Keys"
-                to="/crate-keys"
-              />
-              <StoreCard
-                image={cardCoins}
-                ring="gold-ring"
-                title="Coins"
-                items="100 • 500 • 1000"
-                cta="Buy Coins"
-                to="/coins"
-              />
+              {orderedStoreCards(extras).map((card) => (
+                <StoreCard {...card} key={card.key} />
+              ))}
             </div>
           </section>
 
@@ -318,12 +348,16 @@ function Home() {
           </section>
 
           {/* ===== FOOTER ===== */}
-          <footer className="mt-6 mb-2 rounded-3xl glass px-5 py-4">
+          <footer className="mt-6 mb-2 rounded-3xl glass px-5 py-[var(--fsmp-footer-py,1rem)]">
             <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-center">
               <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
                 <div className="flex min-w-0 items-center gap-2">
-                  <span className="grid h-8 w-8 shrink-0 place-items-center rounded-xl btn-neon">
-                    <Crown className="h-4 w-4" />
+                  <span className="grid h-8 w-8 shrink-0 place-items-center overflow-hidden rounded-xl btn-neon">
+                    {extras.media.logoImage ? (
+                      <img src={extras.media.logoImage} alt="" className="h-full w-full object-cover" />
+                    ) : (
+                      <Crown className="h-4 w-4" />
+                    )}
                   </span>
                   <span className="min-w-0">
                     <span className="block truncate font-display text-xs font-extrabold">
@@ -336,18 +370,30 @@ function Home() {
                   </span>
                 </div>
                 <FooterStat label="Server IP" value={c.serverIp} onCopy={copyIp} />
-                <FooterStat label="Online Players" value={String(c.playerCount)} />
-                <FooterStat label="Version" value={c.version} />
+                <FooterStat label="Online Players" value={String(players)} />
+                <FooterStat label="Version" value={status.version || c.version} />
               </div>
               <div className="flex shrink-0 items-center gap-2">
-                {[Megaphone, Youtube, Instagram, Globe].map((Icon, i) => (
-                  <span
-                    key={i}
-                    className="grid h-8 w-8 place-items-center rounded-full bg-accent text-muted-foreground transition-colors hover:bg-primary hover:text-primary-foreground"
-                  >
-                    <Icon className="h-3.5 w-3.5" />
-                  </span>
-                ))}
+                {(
+                  [
+                    { Icon: Megaphone, href: extras.social.discord },
+                    { Icon: Youtube, href: extras.social.youtube },
+                    { Icon: Instagram, href: extras.social.instagram },
+                    { Icon: Globe, href: extras.social.telegram },
+                  ] as const
+                ).map(({ Icon, href }, i) => {
+                  const cls =
+                    "grid h-8 w-8 place-items-center rounded-full bg-accent text-muted-foreground transition-colors hover:bg-primary hover:text-primary-foreground";
+                  return href ? (
+                    <a key={i} href={href} target="_blank" rel="noopener noreferrer" className={cls}>
+                      <Icon className="h-3.5 w-3.5" />
+                    </a>
+                  ) : (
+                    <span key={i} className={cls}>
+                      <Icon className="h-3.5 w-3.5" />
+                    </span>
+                  );
+                })}
               </div>
             </div>
           </footer>
@@ -405,7 +451,7 @@ function StoreCard({
 }) {
   return (
     <div
-      className={`group relative flex min-h-[300px] flex-col justify-end overflow-hidden rounded-3xl ${ring} transition-transform duration-300 hover:-translate-y-1`}
+      className={`group relative flex min-h-[var(--fsmp-card-h,300px)] flex-col justify-end overflow-hidden rounded-3xl ${ring} transition-transform duration-300 hover:-translate-y-1`}
     >
       <img
         src={image}

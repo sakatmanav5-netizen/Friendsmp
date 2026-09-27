@@ -18,6 +18,7 @@ import { Route as NewsRouteImport } from './routes/news'
 import { Route as RanksRouteImport } from './routes/ranks'
 import { Route as StaffRouteImport } from './routes/staff'
 import { Route as StoreRouteImport } from './routes/store'
+import { Route as SupportRouteImport } from './routes/support'
 import { Route as ApiPublicBridgeRouteImport } from './routes/api/public/bridge'
 import { Route as ApiPublicRazorpayWebhookRouteImport } from './routes/api/public/razorpay-webhook'
 
@@ -66,6 +67,11 @@ const StoreRoute = StoreRouteImport.update({
   path: '/store',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SupportRoute = SupportRouteImport.update({
+  id: '/support',
+  path: '/support',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicBridgeRoute = ApiPublicBridgeRouteImport.update({
   id: '/api/public/bridge',
   path: '/api/public/bridge',
@@ -88,6 +94,7 @@ export interface FileRoutesByFullPath {
   '/ranks': typeof RanksRoute
   '/staff': typeof StaffRoute
   '/store': typeof StoreRoute
+  '/support': typeof SupportRoute
   '/api/public/bridge': typeof ApiPublicBridgeRoute
   '/api/public/razorpay-webhook': typeof ApiPublicRazorpayWebhookRoute
 }
@@ -101,6 +108,7 @@ export interface FileRoutesByTo {
   '/ranks': typeof RanksRoute
   '/staff': typeof StaffRoute
   '/store': typeof StoreRoute
+  '/support': typeof SupportRoute
   '/api/public/bridge': typeof ApiPublicBridgeRoute
   '/api/public/razorpay-webhook': typeof ApiPublicRazorpayWebhookRoute
 }
@@ -115,6 +123,7 @@ export interface FileRoutesById {
   '/ranks': typeof RanksRoute
   '/staff': typeof StaffRoute
   '/store': typeof StoreRoute
+  '/support': typeof SupportRoute
   '/api/public/bridge': typeof ApiPublicBridgeRoute
   '/api/public/razorpay-webhook': typeof ApiPublicRazorpayWebhookRoute
 }
@@ -130,6 +139,7 @@ export interface FileRouteTypes {
     | '/ranks'
     | '/staff'
     | '/store'
+    | '/support'
     | '/api/public/bridge'
     | '/api/public/razorpay-webhook'
   fileRoutesByTo: FileRoutesByTo
@@ -143,6 +153,7 @@ export interface FileRouteTypes {
     | '/ranks'
     | '/staff'
     | '/store'
+    | '/support'
     | '/api/public/bridge'
     | '/api/public/razorpay-webhook'
   id:
@@ -156,6 +167,7 @@ export interface FileRouteTypes {
     | '/ranks'
     | '/staff'
     | '/store'
+    | '/support'
     | '/api/public/bridge'
     | '/api/public/razorpay-webhook'
   fileRoutesById: FileRoutesById
@@ -170,6 +182,7 @@ export interface RootRouteChildren {
   RanksRoute: typeof RanksRoute
   StaffRoute: typeof StaffRoute
   StoreRoute: typeof StoreRoute
+  SupportRoute: typeof SupportRoute
   ApiPublicBridgeRoute: typeof ApiPublicBridgeRoute
   ApiPublicRazorpayWebhookRoute: typeof ApiPublicRazorpayWebhookRoute
 }
@@ -239,6 +252,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof StoreRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/support': {
+      id: '/support'
+      path: '/support'
+      fullPath: '/support'
+      preLoaderRoute: typeof SupportRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/bridge': {
       id: '/api/public/bridge'
       path: '/api/public/bridge'
@@ -266,6 +286,7 @@ const rootRouteChildren: RootRouteChildren = {
   RanksRoute: RanksRoute,
   StaffRoute: StaffRoute,
   StoreRoute: StoreRoute,
+  SupportRoute: SupportRoute,
   ApiPublicBridgeRoute: ApiPublicBridgeRoute,
   ApiPublicRazorpayWebhookRoute: ApiPublicRazorpayWebhookRoute,
 }

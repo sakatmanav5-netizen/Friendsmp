@@ -15,6 +15,13 @@
       "when": 1790403279207,
       "tag": "0001_lock_private_settings",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1790492123897,
+      "tag": "0002_new_modules_media_social_status",
+      "breakpoints": true
     }
   ]
 }

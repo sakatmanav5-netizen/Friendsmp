@@ -36,7 +36,7 @@ export type PublicProduct = {
 export const getSiteData = createServerFn({ method: "GET" }).handler(async () => {
   const supabase = publicClient();
   const [settings, products] = await Promise.all([
-    supabase.from("site_settings").select("value").eq("key", "content").maybeSingle(),
+    supabase.from("site_settings").select("key, value").in("key", ["content", "design", "social", "media"]),
     supabase
       .from("products")
       .select("id, category, name, price, blurb, perks, featured")
@@ -44,13 +44,18 @@ export const getSiteData = createServerFn({ method: "GET" }).handler(async () =>
       .order("sort_order", { ascending: true }),
   ]);
 
-  const stored = (settings.data?.value ?? {}) as Partial<SiteContent> & { accent?: string };
+  const settingsMap = Object.fromEntries((settings.data ?? []).map((s) => [s.key, s.value]));
+
+  const stored = (settingsMap["content"] ?? {}) as Partial<SiteContent> & { accent?: string };
   const content: SiteContent & { accent: string } = {
     ...defaultContent,
     accent: "purple",
     ...stored,
     news: { ...defaultContent.news, ...(stored.news ?? {}) },
   };
+  const design = (settingsMap["design"] ?? {}) as Record<string, any>;
+  const social = (settingsMap["social"] ?? {}) as Record<string, any>;
+  const media = (settingsMap["media"] ?? {}) as Record<string, any>;
 
   const catalog: PublicProduct[] = (products.data ?? []).map((p) => ({
     id: p.id,
@@ -62,7 +67,7 @@ export const getSiteData = createServerFn({ method: "GET" }).handler(async () =>
     featured: p.featured,
   }));
 
-  return { content, products: catalog };
+  return { content, products: catalog, design, social, media };
 });
 
 const orderInput = z.object({

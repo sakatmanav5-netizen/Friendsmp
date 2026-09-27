@@ -89,6 +89,10 @@ export const getAdminData = createServerFn({ method: "GET" })
       jobs: jobs.data ?? [],
       products: products.data ?? [],
       content: (settingsMap["content"] ?? {}) as Record<string, any>,
+      design: (settingsMap["design"] ?? {}) as Record<string, any>,
+      media: (settingsMap["media"] ?? {}) as Record<string, any>,
+      social: (settingsMap["social"] ?? {}) as Record<string, any>,
+      serverStatus: (settingsMap["server_status"] ?? {}) as Record<string, any>,
       razorpay:
         staff.role === "owner"
           ? {
@@ -384,5 +388,323 @@ export const saveRazorpay = createServerFn({ method: "POST" })
       .upsert({ key: "razorpay", value: value as never, updated_at: new Date().toISOString() });
     if (error) throw new Error(error.message);
     await audit(staff, "payments.save", "site_settings/razorpay");
+    return { ok: true };
+  });
+
+/* ------------------------------------------------------------------ *
+ * New modules: Visual Website Builder, Social Links, Server Status.
+ * These are additive — they don't touch content/products/access/etc.
+ * ------------------------------------------------------------------ */
+
+const mediaInput = z.object({
+  heroImage: z.string().trim().max(600).optional().or(z.literal("")),
+  logoImage: z.string().trim().max(600).optional().or(z.literal("")),
+  cardImages: z
+    .object({
+      ranks: z.string().trim().max(600).optional().or(z.literal("")),
+      crates: z.string().trim().max(600).optional().or(z.literal("")),
+      coins: z.string().trim().max(600).optional().or(z.literal("")),
+    })
+    .partial(),
+});
+
+/** Save the public URLs of images uploaded via the Media Manager (files
+ * themselves go straight to Supabase Storage from the browser). */
+export const saveMedia = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data: { media: z.infer<typeof mediaInput> }) => ({
+    media: mediaInput.parse(data.media),
+  }))
+  .handler(async ({ data, context }) => {
+    const staff = await requireStaff(context);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { error } = await supabaseAdmin
+      .from("site_settings")
+      .upsert({
+        key: "media",
+        value: data.media as never,
+        updated_at: new Date().toISOString(),
+        updated_by: staff.userId,
+      });
+    if (error) throw new Error(error.message);
+    await audit(staff, "media.save", "site_settings/media");
+    return { ok: true };
+  });
+
+/** Save the visual builder's design tokens (colours, radius, glow, layout). */
+export const saveDesign = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data: { design: Record<string, unknown> }) => data)
+  .handler(async ({ data, context }) => {
+    const staff = await requireStaff(context);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { error } = await supabaseAdmin
+      .from("site_settings")
+      .upsert({
+        key: "design",
+        value: data.design as never,
+        updated_at: new Date().toISOString(),
+        updated_by: staff.userId,
+      });
+    if (error) throw new Error(error.message);
+    await audit(staff, "design.save", "site_settings/design");
+    return { ok: true };
+  });
+
+const socialInput = z.object({
+  discord: z.string().trim().max(300).optional().or(z.literal("")),
+  instagram: z.string().trim().max(300).optional().or(z.literal("")),
+  youtube: z.string().trim().max(300).optional().or(z.literal("")),
+  telegram: z.string().trim().max(300).optional().or(z.literal("")),
+});
+
+/** Save footer / social links. */
+export const saveSocial = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data) => socialInput.parse(data))
+  .handler(async ({ data, context }) => {
+    const staff = await requireStaff(context);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { error } = await supabaseAdmin
+      .from("site_settings")
+      .upsert({
+        key: "social",
+        value: data as never,
+        updated_at: new Date().toISOString(),
+        updated_by: staff.userId,
+      });
+    if (error) throw new Error(error.message);
+    await audit(staff, "social.save", "site_settings/social");
+    return { ok: true };
+  });
+
+const serverStatusInput = z.object({
+  mode: z.enum(["live", "manual"]),
+  manualOnline: z.boolean(),
+  manualPlayers: z.number().min(0).max(100000),
+  manualMaxPlayers: z.number().min(0).max(100000),
+  manualMotd: z.string().trim().max(200),
+  manualVersion: z.string().trim().max(60),
+});
+
+/** Owner/editor: choose live (pinged) or manual server status, and the manual fallback values. */
+export const saveServerStatus = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data) => serverStatusInput.parse(data))
+  .handler(async ({ data, context }) => {
+    const staff = await requireStaff(context);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { error } = await supabaseAdmin
+      .from("site_settings")
+      .upsert({
+        key: "server_status",
+        value: data as never,
+        updated_at: new Date().toISOString(),
+        updated_by: staff.userId,
+      });
+    if (error) throw new Error(error.message);
+    await audit(staff, "server_status.save", "site_settings/server_status");
+    return { ok: true };
+  });
+
+/* ------------------------------------------------------------------ *
+ * New modules: Analytics & Ticket System.
+ * ------------------------------------------------------------------ */
+
+/** Revenue / order stats computed from the existing `orders` table. */
+export const getAnalytics = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    await requireStaff(context);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+    const since = new Date();
+    since.setDate(since.getDate() - 30);
+
+    const { data: orders, error } = await supabaseAdmin
+      .from("orders")
+      .select("status, amount, product_name, created_at, paid_at")
+      .gte("created_at", since.toISOString());
+    if (error) throw new Error(error.message);
+
+    const rows = orders ?? [];
+    const paid = rows.filter((o) => o.status === "paid" || o.status === "delivered");
+    const totalRevenue = paid.reduce((sum, o) => sum + Number(o.amount), 0);
+    const counts = { pending: 0, paid: 0, delivered: 0, refunded: 0 } as Record<string, number>;
+    for (const o of rows) counts[o.status] = (counts[o.status] ?? 0) + 1;
+
+    const byDay = new Map<string, number>();
+    for (const o of paid) {
+      const day = (o.paid_at ?? o.created_at).slice(0, 10);
+      byDay.set(day, (byDay.get(day) ?? 0) + Number(o.amount));
+    }
+    const revenueByDay = Array.from(byDay.entries())
+      .sort(([a], [b]) => a.localeCompare(b))
+      .map(([day, revenue]) => ({ day, revenue }));
+
+    const byProduct = new Map<string, { count: number; revenue: number }>();
+    for (const o of paid) {
+      const cur = byProduct.get(o.product_name) ?? { count: 0, revenue: 0 };
+      cur.count += 1;
+      cur.revenue += Number(o.amount);
+      byProduct.set(o.product_name, cur);
+    }
+    const topProducts = Array.from(byProduct.entries())
+      .map(([name, v]) => ({ name, ...v }))
+      .sort((a, b) => b.revenue - a.revenue)
+      .slice(0, 8);
+
+    return {
+      totalRevenue,
+      totalOrders: rows.length,
+      counts,
+      revenueByDay,
+      topProducts,
+      windowDays: 30,
+    };
+  });
+
+/** Staff: list tickets (newest first), lightweight fields for the table view. */
+export const getTicketsAdmin = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    await requireStaff(context);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data, error } = await supabaseAdmin
+      .from("tickets")
+      .select("id, reference, minecraft_username, email, subject, status, created_at, updated_at")
+      .order("updated_at", { ascending: false })
+      .limit(200);
+    if (error) throw new Error(error.message);
+    return { tickets: data ?? [] };
+  });
+
+const ticketIdInput = z.object({ ticketId: z.string().uuid() });
+
+/** Staff: full thread for one ticket. */
+export const getTicketThread = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data) => ticketIdInput.parse(data))
+  .handler(async ({ data, context }) => {
+    await requireStaff(context);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: ticket, error } = await supabaseAdmin
+      .from("tickets")
+      .select("*")
+      .eq("id", data.ticketId)
+      .single();
+    if (error) throw new Error(error.message);
+    const { data: replies } = await supabaseAdmin
+      .from("ticket_replies")
+      .select("*")
+      .eq("ticket_id", data.ticketId)
+      .order("created_at", { ascending: true });
+    return { ticket, replies: replies ?? [] };
+  });
+
+const replyAsStaffInput = z.object({
+  ticketId: z.string().uuid(),
+  message: z.string().trim().min(1).max(2000),
+  status: z.enum(["open", "in_progress", "closed"]).optional(),
+});
+
+/** Staff: reply to a ticket, optionally updating its status in the same action. */
+export const replyAsStaff = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data) => replyAsStaffInput.parse(data))
+  .handler(async ({ data, context }) => {
+    const staff = await requireStaff(context);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { error } = await supabaseAdmin.from("ticket_replies").insert({
+      ticket_id: data.ticketId,
+      sender: "staff",
+      staff_email: staff.email,
+      message: data.message,
+    });
+    if (error) throw new Error(error.message);
+
+    await supabaseAdmin
+      .from("tickets")
+      .update({ status: data.status ?? "in_progress", updated_at: new Date().toISOString() })
+      .eq("id", data.ticketId);
+
+    await audit(staff, "ticket.reply", data.ticketId);
+    return { ok: true };
+  });
+
+const ticketStatusInput = z.object({
+  ticketId: z.string().uuid(),
+  status: z.enum(["open", "in_progress", "closed"]),
+});
+
+/** Staff: change a ticket's status without necessarily replying. */
+export const updateTicketStatus = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data) => ticketStatusInput.parse(data))
+  .handler(async ({ data, context }) => {
+    const staff = await requireStaff(context);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { error } = await supabaseAdmin
+      .from("tickets")
+      .update({ status: data.status, updated_at: new Date().toISOString() })
+      .eq("id", data.ticketId);
+    if (error) throw new Error(error.message);
+    await audit(staff, "ticket.status", data.ticketId, { status: data.status });
+    return { ok: true };
+  });
+
+const newProductInput = z.object({
+  id: z
+    .string()
+    .trim()
+    .regex(/^[a-z0-9-]{3,40}$/, "Use lowercase letters, numbers and dashes only"),
+  category: z.enum(["ranks", "crates", "coins"]),
+  name: z.string().trim().min(1).max(60),
+  price: z.number().min(0).max(100000),
+  blurb: z.string().max(400).default(""),
+});
+
+/** Create a brand new store package (rank / crate key / coin bundle). */
+export const createProduct = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data) => newProductInput.parse(data))
+  .handler(async ({ data, context }) => {
+    const staff = await requireStaff(context);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: last } = await supabaseAdmin
+      .from("products")
+      .select("sort_order")
+      .eq("category", data.category)
+      .order("sort_order", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    const { error } = await supabaseAdmin.from("products").insert({
+      id: data.id,
+      category: data.category,
+      name: data.name,
+      price: data.price,
+      blurb: data.blurb,
+      perks: [] as never,
+      rcon_commands: [] as never,
+      revoke_commands: [] as never,
+      featured: false,
+      active: true,
+      sort_order: (last?.sort_order ?? 0) + 1,
+    });
+    if (error) throw new Error(error.message);
+    await audit(staff, "product.create", data.id, { name: data.name, price: data.price });
+    return { ok: true };
+  });
+
+/** Permanently delete a store package. Past orders keep their own records. */
+export const deleteProduct = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data) => z.object({ id: z.string().trim().min(1).max(60) }).parse(data))
+  .handler(async ({ data, context }) => {
+    const staff = await requireStaff(context);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { error } = await supabaseAdmin.from("products").delete().eq("id", data.id);
+    if (error) throw new Error(error.message);
+    await audit(staff, "product.delete", data.id, {});
     return { ok: true };
   });

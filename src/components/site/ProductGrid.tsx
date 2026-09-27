@@ -7,6 +7,7 @@ import { useServerFn } from "@tanstack/react-start";
 
 import type { Product } from "@/lib/catalog";
 import { createOrder, getSiteData, verifyPayment } from "@/lib/public.functions";
+import { PurchaseCelebration } from "@/components/site/PurchaseCelebration";
 
 const USERNAME_RE = /^[A-Za-z0-9_]{3,16}$/;
 
@@ -67,6 +68,7 @@ function CheckoutDialog({ product, onClose }: { product: Product; onClose: () =>
   const [confirm, setConfirm] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const [celebrate, setCelebrate] = useState<{ title: string; subtitle: string } | null>(null);
   const placeOrder = useServerFn(createOrder);
   const verify = useServerFn(verifyPayment);
 
@@ -88,7 +90,10 @@ function CheckoutDialog({ product, onClose }: { product: Product; onClose: () =>
         if (order.razorpay) {
           await openRazorpay(order.razorpay, order.product_name, async (r) => {
             await verify({ data: { orderId: r.razorpay_order_id, paymentId: r.razorpay_payment_id, signature: r.razorpay_signature } });
-            onClose();
+            setCelebrate({
+              title: "Payment Successful!",
+              subtitle: `${order.product_name} is on its way to ${order.minecraft_username} in-game.`,
+            });
             toast.success(`Payment received — ${order.reference}`, {
               description: `${order.product_name} will be delivered to ${order.minecraft_username} in-game within a minute.`,
               duration: 12000,
@@ -105,6 +110,10 @@ function CheckoutDialog({ product, onClose }: { product: Product; onClose: () =>
       .catch((err: Error) => setError(err.message || "Could not place order."))
       .finally(() => setBusy(false));
   };
+
+  if (celebrate) {
+    return <PurchaseCelebration title={celebrate.title} subtitle={celebrate.subtitle} onDone={onClose} />;
+  }
 
   return (
     <div className="fixed inset-0 z-[60] grid place-items-center bg-background/80 p-4 backdrop-blur-sm">

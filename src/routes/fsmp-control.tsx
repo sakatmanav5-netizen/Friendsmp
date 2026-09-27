@@ -14,10 +14,14 @@ import {
   fixUsername,
   saveContent,
   saveProduct,
+  createProduct,
+  deleteProduct,
   setEditorAccess,
   rotateBridgeToken,
   saveRazorpay,
 } from "@/lib/admin.functions";
+import { Design, Media, Social, ServerStatusPanel } from "@/components/admin/ExtraModules";
+import { Analytics, Tickets } from "@/components/admin/SupportModules";
 
 export const Route = createFileRoute("/fsmp-control")({
   ssr: false,
@@ -104,7 +108,19 @@ function Login() {
   );
 }
 
-type Tab = "orders" | "products" | "content" | "access" | "bridge" | "audit";
+type Tab =
+  | "orders"
+  | "products"
+  | "content"
+  | "design"
+  | "media"
+  | "social"
+  | "status"
+  | "analytics"
+  | "tickets"
+  | "access"
+  | "bridge"
+  | "audit";
 
 function Dashboard() {
   const qc = useQueryClient();
@@ -129,7 +145,20 @@ function Dashboard() {
       </div>
     );
 
-  const tabs: Tab[] = ["orders", "products", "content", "access", "bridge", "audit"];
+  const tabs: Tab[] = [
+    "orders",
+    "products",
+    "content",
+    "design",
+    "media",
+    "social",
+    "status",
+    "analytics",
+    "tickets",
+    "access",
+    "bridge",
+    "audit",
+  ];
   return (
     <>
       <header className="mb-6 flex flex-wrap items-center justify-between gap-3">
@@ -160,6 +189,12 @@ function Dashboard() {
           {tab === "orders" && <Orders orders={data.data.orders} jobs={data.data.jobs} onDone={refresh} />}
           {tab === "products" && <Products products={data.data.products} onDone={refresh} />}
           {tab === "content" && <Content content={data.data.content} onDone={refresh} />}
+          {tab === "design" && <Design design={data.data.design} onDone={refresh} />}
+          {tab === "media" && <Media media={data.data.media} onDone={refresh} />}
+          {tab === "social" && <Social social={data.data.social} onDone={refresh} />}
+          {tab === "status" && <ServerStatusPanel status={data.data.serverStatus} onDone={refresh} />}
+          {tab === "analytics" && <Analytics />}
+          {tab === "tickets" && <Tickets />}
           {tab === "access" && <Access staff={data.data.staff} onDone={refresh} />}
           {tab === "bridge" && (<><Payments cfg={data.data.razorpay} onDone={refresh} /><Bridge token={data.data.bridgeToken} onDone={refresh} /></>)}
           {tab === "audit" && <Audit rows={data.data.audit} />}
@@ -274,12 +309,55 @@ function Orders({ orders, jobs, onDone }: { orders: any[]; jobs: any[]; onDone: 
 }
 
 function Products({ products, onDone }: { products: any[]; onDone: () => void }) {
+  const create = useServerFn(createProduct);
+  const { busy, run } = useAction();
+  const [open, setOpen] = useState(false);
+  const [n, setN] = useState({ id: "", category: "ranks", name: "", price: "", blurb: "" });
+
   return (
     <div className="space-y-4">
-      <h2 className="font-display text-xl font-black">Store Packages</h2>
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <h2 className="font-display text-xl font-black">Store Packages</h2>
+        <button className={btn} onClick={() => setOpen(!open)}>
+          {open ? "Cancel" : "+ Add new package"}
+        </button>
+      </div>
       <p className="text-[12px] text-muted-foreground">
         Use {"{username}"} in commands — it's replaced with the buyer's Minecraft name. One command per line.
       </p>
+      {open && (
+        <div className="space-y-2 rounded-2xl border border-primary/40 p-4">
+          <div className="grid gap-2 sm:grid-cols-2">
+            <label className="block text-[11px] text-muted-foreground">Type
+              <select className={input} value={n.category} onChange={(e) => setN({ ...n, category: e.target.value })}>
+                <option value="ranks">Rank / Tag</option>
+                <option value="crates">Crate Key</option>
+                <option value="coins">Coins</option>
+              </select>
+            </label>
+            <label className="block text-[11px] text-muted-foreground">Internal id (e.g. rank-elite)
+              <input className={input} value={n.id} onChange={(e) => setN({ ...n, id: e.target.value })} placeholder="rank-elite" />
+            </label>
+            <label className="block text-[11px] text-muted-foreground">Display name
+              <input className={input} value={n.name} onChange={(e) => setN({ ...n, name: e.target.value })} placeholder="ELITE Rank" />
+            </label>
+            <label className="block text-[11px] text-muted-foreground">Price
+              <input className={input} type="number" step="0.01" value={n.price} onChange={(e) => setN({ ...n, price: e.target.value })} />
+            </label>
+          </div>
+          <input className={input} value={n.blurb} onChange={(e) => setN({ ...n, blurb: e.target.value })} placeholder="Short description" />
+          <button disabled={busy} className={btn} onClick={() =>
+            run(() => create({ data: {
+              id: n.id.trim().toLowerCase(), category: n.category as "ranks" | "crates" | "coins",
+              name: n.name, price: Number(n.price) || 0, blurb: n.blurb,
+            } }), `${n.name} created — now add its perks and commands below`, () => {
+              setN({ id: "", category: "ranks", name: "", price: "", blurb: "" });
+              setOpen(false);
+              onDone();
+            })
+          }>Create package</button>
+        </div>
+      )}
       <div className="grid gap-4 md:grid-cols-2">
         {products.map((p) => <ProductEditor key={p.id} p={p} onDone={onDone} />)}
       </div>
@@ -289,6 +367,7 @@ function Products({ products, onDone }: { products: any[]; onDone: () => void })
 
 function ProductEditor({ p, onDone }: { p: any; onDone: () => void }) {
   const save = useServerFn(saveProduct);
+  const del = useServerFn(deleteProduct);
   const { busy, run } = useAction();
   const [f, setF] = useState({
     name: p.name as string,
@@ -306,6 +385,16 @@ function ProductEditor({ p, onDone }: { p: any; onDone: () => void }) {
     <div className="space-y-2 rounded-2xl border border-border p-4">
       <div className="flex items-center justify-between text-[10px] font-bold tracking-widest text-neon-soft">
         <span>{p.category.toUpperCase()} · {p.id}</span>
+        <button
+          disabled={busy}
+          className="text-[10px] font-bold text-destructive hover:underline"
+          onClick={() => {
+            if (!confirm(`Delete "${p.name}" permanently? Past orders stay in the ledger.`)) return;
+            run(() => del({ data: { id: p.id } }), `${p.name} deleted`, onDone);
+          }}
+        >
+          DELETE
+        </button>
       </div>
       <div className="grid grid-cols-[1fr_100px] gap-2">
         <input className={input} value={f.name} onChange={(e) => setF({ ...f, name: e.target.value })} />
