@@ -53,9 +53,9 @@ export const getSiteData = createServerFn({ method: "GET" }).handler(async () =>
     ...stored,
     news: { ...defaultContent.news, ...(stored.news ?? {}) },
   };
-  const design = (settingsMap["design"] ?? {}) as Record<string, unknown>;
-  const social = (settingsMap["social"] ?? {}) as Record<string, unknown>;
-  const media = (settingsMap["media"] ?? {}) as Record<string, unknown>;
+  const design = (settingsMap["design"] ?? {}) as Record<string, any>;
+  const social = (settingsMap["social"] ?? {}) as Record<string, any>;
+  const media = (settingsMap["media"] ?? {}) as Record<string, any>;
 
   const catalog: PublicProduct[] = (products.data ?? []).map((p) => ({
     id: p.id,
