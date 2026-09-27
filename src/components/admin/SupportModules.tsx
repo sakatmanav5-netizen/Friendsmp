@@ -54,8 +54,8 @@ export function Analytics() {
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         <Stat label="Revenue" value={`₹${data.totalRevenue.toFixed(0)}`} icon={<TrendingUp className="h-3.5 w-3.5" />} />
         <Stat label="Orders" value={String(data.totalOrders)} />
-        <Stat label="Paid" value={String(data.counts.paid ?? 0)} />
-        <Stat label="Pending" value={String(data.counts.pending ?? 0)} />
+        <Stat label="Paid" value={String(data.counts["paid"] ?? 0)} />
+        <Stat label="Pending" value={String(data.counts["pending"] ?? 0)} />
       </div>
 
       <div>

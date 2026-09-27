@@ -98,7 +98,7 @@ function orderedStoreCards(extras: ReturnType<typeof useLiveExtras>): StoreCardD
     },
   };
   const order = extras.design.homeCardOrder?.length === 3 ? extras.design.homeCardOrder : ["ranks", "crates", "coins"];
-  return order.map((k) => base[k]);
+  return order.map((k) => base[k as StoreCardKey]);
 }
 
 function Home() {
@@ -291,7 +291,7 @@ function Home() {
 
             <div className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {orderedStoreCards(extras).map((card) => (
-                <StoreCard key={card.key} {...card} />
+                <StoreCard {...card} key={card.key} />
               ))}
             </div>
           </section>
