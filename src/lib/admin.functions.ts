@@ -652,3 +652,59 @@ export const updateTicketStatus = createServerFn({ method: "POST" })
     await audit(staff, "ticket.status", data.ticketId, { status: data.status });
     return { ok: true };
   });
+
+const newProductInput = z.object({
+  id: z
+    .string()
+    .trim()
+    .regex(/^[a-z0-9-]{3,40}$/, "Use lowercase letters, numbers and dashes only"),
+  category: z.enum(["ranks", "crates", "coins"]),
+  name: z.string().trim().min(1).max(60),
+  price: z.number().min(0).max(100000),
+  blurb: z.string().max(400).default(""),
+});
+
+/** Create a brand new store package (rank / crate key / coin bundle). */
+export const createProduct = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data) => newProductInput.parse(data))
+  .handler(async ({ data, context }) => {
+    const staff = await requireStaff(context);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: last } = await supabaseAdmin
+      .from("products")
+      .select("sort_order")
+      .eq("category", data.category)
+      .order("sort_order", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    const { error } = await supabaseAdmin.from("products").insert({
+      id: data.id,
+      category: data.category,
+      name: data.name,
+      price: data.price,
+      blurb: data.blurb,
+      perks: [] as never,
+      rcon_commands: [] as never,
+      revoke_commands: [] as never,
+      featured: false,
+      active: true,
+      sort_order: (last?.sort_order ?? 0) + 1,
+    });
+    if (error) throw new Error(error.message);
+    await audit(staff, "product.create", data.id, { name: data.name, price: data.price });
+    return { ok: true };
+  });
+
+/** Permanently delete a store package. Past orders keep their own records. */
+export const deleteProduct = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data) => z.object({ id: z.string().trim().min(1).max(60) }).parse(data))
+  .handler(async ({ data, context }) => {
+    const staff = await requireStaff(context);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { error } = await supabaseAdmin.from("products").delete().eq("id", data.id);
+    if (error) throw new Error(error.message);
+    await audit(staff, "product.delete", data.id, {});
+    return { ok: true };
+  });
