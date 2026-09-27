@@ -5,6 +5,7 @@ import { toast } from "sonner";
 
 import { Sidebar } from "@/components/site/Sidebar";
 import { liveContent as c, useLiveContent } from "@/lib/live-content";
+import { useLiveServerStatus } from "@/lib/live-status";
 
 export function copyServerIp() {
   void navigator.clipboard?.writeText(c.serverIp).catch(() => {});
@@ -23,6 +24,9 @@ export function PageShell({
   children: ReactNode;
 }) {
   useLiveContent();
+  const status = useLiveServerStatus();
+  const players = status.players >= 0 ? status.players : c.playerCount;
+  const online = status.players >= 0 ? status.online : true;
   const [menuOpen, setMenuOpen] = useState(false);
 
   return (
@@ -39,12 +43,14 @@ export function PageShell({
               >
                 <Menu className="h-4 w-4" />
               </button>
-              <div className="flex min-w-0 items-center gap-2 rounded-full glass px-3 py-2">
-                <span className="h-2 w-2 shrink-0 rounded-full bg-online pulse-dot" />
-                <span className="truncate text-[11px] font-semibold sm:text-xs">Server Online</span>
+              <div className="flex min-w-0 items-center gap-2 rounded-full glass px-3 py-2" title={status.motd || undefined}>
+                <span className={`h-2 w-2 shrink-0 rounded-full ${online ? "bg-online pulse-dot" : "bg-destructive"}`} />
+                <span className="truncate text-[11px] font-semibold sm:text-xs">
+                  {online ? "Server Online" : "Server Offline"}
+                </span>
                 <span className="h-3 w-px shrink-0 bg-border" />
                 <span className="truncate text-[11px] font-semibold text-muted-foreground sm:text-xs">
-                  {c.playerCount} Players
+                  {players} Players
                 </span>
               </div>
             </div>

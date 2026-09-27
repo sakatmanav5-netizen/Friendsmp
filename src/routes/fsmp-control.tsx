@@ -18,6 +18,8 @@ import {
   rotateBridgeToken,
   saveRazorpay,
 } from "@/lib/admin.functions";
+import { Design, Media, Social, ServerStatusPanel } from "@/components/admin/ExtraModules";
+import { Analytics, Tickets } from "@/components/admin/SupportModules";
 
 export const Route = createFileRoute("/fsmp-control")({
   ssr: false,
@@ -104,7 +106,19 @@ function Login() {
   );
 }
 
-type Tab = "orders" | "products" | "content" | "access" | "bridge" | "audit";
+type Tab =
+  | "orders"
+  | "products"
+  | "content"
+  | "design"
+  | "media"
+  | "social"
+  | "status"
+  | "analytics"
+  | "tickets"
+  | "access"
+  | "bridge"
+  | "audit";
 
 function Dashboard() {
   const qc = useQueryClient();
@@ -129,7 +143,20 @@ function Dashboard() {
       </div>
     );
 
-  const tabs: Tab[] = ["orders", "products", "content", "access", "bridge", "audit"];
+  const tabs: Tab[] = [
+    "orders",
+    "products",
+    "content",
+    "design",
+    "media",
+    "social",
+    "status",
+    "analytics",
+    "tickets",
+    "access",
+    "bridge",
+    "audit",
+  ];
   return (
     <>
       <header className="mb-6 flex flex-wrap items-center justify-between gap-3">
@@ -160,6 +187,12 @@ function Dashboard() {
           {tab === "orders" && <Orders orders={data.data.orders} jobs={data.data.jobs} onDone={refresh} />}
           {tab === "products" && <Products products={data.data.products} onDone={refresh} />}
           {tab === "content" && <Content content={data.data.content} onDone={refresh} />}
+          {tab === "design" && <Design design={data.data.design} onDone={refresh} />}
+          {tab === "media" && <Media media={data.data.media} onDone={refresh} />}
+          {tab === "social" && <Social social={data.data.social} onDone={refresh} />}
+          {tab === "status" && <ServerStatusPanel status={data.data.serverStatus} onDone={refresh} />}
+          {tab === "analytics" && <Analytics />}
+          {tab === "tickets" && <Tickets />}
           {tab === "access" && <Access staff={data.data.staff} onDone={refresh} />}
           {tab === "bridge" && (<><Payments cfg={data.data.razorpay} onDone={refresh} /><Bridge token={data.data.bridgeToken} onDone={refresh} /></>)}
           {tab === "audit" && <Audit rows={data.data.audit} />}

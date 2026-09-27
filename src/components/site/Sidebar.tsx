@@ -10,10 +10,12 @@ import {
   Info,
   X,
   Crown,
+  LifeBuoy,
 } from "lucide-react";
 
 import crystal from "@/assets/sidebar-crystal.jpg";
 import { defaultContent } from "@/lib/site-content";
+import { useLiveExtras } from "@/lib/live-content";
 
 export const navItems = [
   { label: "Home", to: "/", icon: Home },
@@ -22,6 +24,7 @@ export const navItems = [
   { label: "Crate Keys", to: "/crate-keys", icon: KeyRound },
   { label: "Coins", to: "/coins", icon: Coins },
   { label: "News", to: "/news", icon: Newspaper },
+  { label: "Support", to: "/support", icon: LifeBuoy },
   { label: "Staff", to: "/staff", icon: Headset },
   { label: "About", to: "/about", icon: Info },
 ] as const;
@@ -39,6 +42,7 @@ export function Sidebar({
   open,
   onClose,
 }: Props) {
+  const extras = useLiveExtras();
   return (
     <>
       {open && (
@@ -66,8 +70,12 @@ export function Sidebar({
 
         <div className="relative flex items-center justify-between px-5 pt-6 pb-2">
           <Link to="/" className="flex items-center gap-2">
-            <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl btn-neon">
-              <Crown className="h-4.5 w-4.5" />
+            <span className="grid h-9 w-9 shrink-0 place-items-center overflow-hidden rounded-xl btn-neon">
+              {extras.media.logoImage ? (
+                <img src={extras.media.logoImage} alt="" className="h-full w-full object-cover" />
+              ) : (
+                <Crown className="h-4.5 w-4.5" />
+              )}
             </span>
             <span className="font-display text-lg font-extrabold tracking-tight">
               {brandPrefix}
