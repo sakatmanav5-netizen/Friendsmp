@@ -307,12 +307,55 @@ function Orders({ orders, jobs, onDone }: { orders: any[]; jobs: any[]; onDone: 
 }
 
 function Products({ products, onDone }: { products: any[]; onDone: () => void }) {
+  const create = useServerFn(createProduct);
+  const { busy, run } = useAction();
+  const [open, setOpen] = useState(false);
+  const [n, setN] = useState({ id: "", category: "ranks", name: "", price: "", blurb: "" });
+
   return (
     <div className="space-y-4">
-      <h2 className="font-display text-xl font-black">Store Packages</h2>
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <h2 className="font-display text-xl font-black">Store Packages</h2>
+        <button className={btn} onClick={() => setOpen(!open)}>
+          {open ? "Cancel" : "+ Add new package"}
+        </button>
+      </div>
       <p className="text-[12px] text-muted-foreground">
         Use {"{username}"} in commands — it's replaced with the buyer's Minecraft name. One command per line.
       </p>
+      {open && (
+        <div className="space-y-2 rounded-2xl border border-primary/40 p-4">
+          <div className="grid gap-2 sm:grid-cols-2">
+            <label className="block text-[11px] text-muted-foreground">Type
+              <select className={input} value={n.category} onChange={(e) => setN({ ...n, category: e.target.value })}>
+                <option value="ranks">Rank / Tag</option>
+                <option value="crates">Crate Key</option>
+                <option value="coins">Coins</option>
+              </select>
+            </label>
+            <label className="block text-[11px] text-muted-foreground">Internal id (e.g. rank-elite)
+              <input className={input} value={n.id} onChange={(e) => setN({ ...n, id: e.target.value })} placeholder="rank-elite" />
+            </label>
+            <label className="block text-[11px] text-muted-foreground">Display name
+              <input className={input} value={n.name} onChange={(e) => setN({ ...n, name: e.target.value })} placeholder="ELITE Rank" />
+            </label>
+            <label className="block text-[11px] text-muted-foreground">Price
+              <input className={input} type="number" step="0.01" value={n.price} onChange={(e) => setN({ ...n, price: e.target.value })} />
+            </label>
+          </div>
+          <input className={input} value={n.blurb} onChange={(e) => setN({ ...n, blurb: e.target.value })} placeholder="Short description" />
+          <button disabled={busy} className={btn} onClick={() =>
+            run(() => create({ data: {
+              id: n.id.trim().toLowerCase(), category: n.category as "ranks" | "crates" | "coins",
+              name: n.name, price: Number(n.price) || 0, blurb: n.blurb,
+            } }), `${n.name} created — now add its perks and commands below`, () => {
+              setN({ id: "", category: "ranks", name: "", price: "", blurb: "" });
+              setOpen(false);
+              onDone();
+            })
+          }>Create package</button>
+        </div>
+      )}
       <div className="grid gap-4 md:grid-cols-2">
         {products.map((p) => <ProductEditor key={p.id} p={p} onDone={onDone} />)}
       </div>
