@@ -175,9 +175,9 @@ export function Design({ design: raw, onDone }: { design: Partial<SiteDesign>; o
 /* ===================== Media Manager ===================== */
 
 type MediaState = {
-  heroImage?: string;
-  logoImage?: string;
-  cardImages?: { ranks?: string; crates?: string; coins?: string };
+  heroImage?: string | undefined;
+  logoImage?: string | undefined;
+  cardImages?: { ranks?: string | undefined; crates?: string | undefined; coins?: string | undefined } | undefined;
 };
 
 function UploadField({
@@ -186,7 +186,7 @@ function UploadField({
   path,
   onUploaded,
 }: {
-  currentUrl?: string;
+  currentUrl?: string | undefined;
   label: string;
   path: string;
   onUploaded: (url: string) => void;
@@ -278,7 +278,7 @@ export function Media({ media: raw, onDone }: { media: MediaState; onDone: () =>
         onUploaded={(url) => setM({ ...m, cardImages: { ...m.cardImages, coins: url } })}
       />
 
-      <button disabled={busy} onClick={() => run(() => save({ data: { media: m } }), "Media saved", onDone)} className={btn}>
+      <button disabled={busy} onClick={() => run(() => save({ data: { media: { ...m, cardImages: m.cardImages ?? {} } } }), "Media saved", onDone)} className={btn}>
         {busy ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : "Save media"}
       </button>
     </div>
@@ -287,7 +287,7 @@ export function Media({ media: raw, onDone }: { media: MediaState; onDone: () =>
 
 /* ===================== Social Links Manager ===================== */
 
-type SocialState = { discord?: string; instagram?: string; youtube?: string; telegram?: string };
+type SocialState = { discord?: string | undefined; instagram?: string | undefined; youtube?: string | undefined; telegram?: string | undefined };
 
 export function Social({ social: raw, onDone }: { social: SocialState; onDone: () => void }) {
   const [s, setS] = useState<SocialState>(raw ?? {});
@@ -328,12 +328,12 @@ export function Social({ social: raw, onDone }: { social: SocialState; onDone: (
 /* ===================== Live Server Status ===================== */
 
 type StatusState = {
-  mode?: "live" | "manual";
-  manualOnline?: boolean;
-  manualPlayers?: number;
-  manualMaxPlayers?: number;
-  manualMotd?: string;
-  manualVersion?: string;
+  mode?: "live" | "manual" | undefined;
+  manualOnline?: boolean | undefined;
+  manualPlayers?: number | undefined;
+  manualMaxPlayers?: number | undefined;
+  manualMotd?: string | undefined;
+  manualVersion?: string | undefined;
 };
 
 export function ServerStatusPanel({ status: raw, onDone }: { status: StatusState; onDone: () => void }) {
