@@ -16,6 +16,7 @@ import {
   saveProduct,
   createProduct,
   deleteProduct,
+  deleteOrder,
   setEditorAccess,
   rotateBridgeToken,
   saveRazorpay,

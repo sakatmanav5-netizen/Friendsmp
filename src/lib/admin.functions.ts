@@ -678,6 +678,16 @@ export const createProduct = createServerFn({ method: "POST" })
       .order("sort_order", { ascending: false })
       .limit(1)
       .maybeSingle();
+    const slug = data.name.toLowerCase().replace(/rank|tag|key|crate|coins?/g, "").replace(/[^a-z0-9]+/g, "").trim() || data.id.split("-").pop()!;
+    const amt = Number(data.name.match(/\d+/)?.[0] ?? 100);
+    const grant =
+      data.category === "ranks" ? [`lp user {username} parent add ${slug}`]
+      : data.category === "crates" ? [`crate give {username} ${slug} 1`]
+      : [`eco give {username} ${amt}`];
+    const revoke =
+      data.category === "ranks" ? [`lp user {username} parent remove ${slug}`]
+      : data.category === "crates" ? [`crate take {username} ${slug} 1`]
+      : [`eco take {username} ${amt}`];
     const { error } = await supabaseAdmin.from("products").insert({
       id: data.id,
       category: data.category,
@@ -685,8 +695,8 @@ export const createProduct = createServerFn({ method: "POST" })
       price: data.price,
       blurb: data.blurb,
       perks: [] as never,
-      rcon_commands: [] as never,
-      revoke_commands: [] as never,
+      rcon_commands: grant as never,
+      revoke_commands: revoke as never,
       featured: false,
       active: true,
       sort_order: (last?.sort_order ?? 0) + 1,
