@@ -260,7 +260,7 @@ function Orders({ orders, jobs, onDone }: { orders: any[]; jobs: any[]; onDone: 
                   <td className="p-2 whitespace-nowrap">{new Date(o.created_at).toLocaleString()}</td>
                   <td className="p-2 font-mono">{o.reference}</td>
                   <td className="p-2">{o.product_name}</td>
-                  <td className="p-2">${Number(o.amount).toFixed(2)}</td>
+                  <td className="p-2">₹{Number(o.amount).toFixed(2)}</td>
                   <td className="p-2 font-semibold">{o.minecraft_username}</td>
                   <td className={`p-2 font-bold ${statusColor[o.status] ?? ""}`}>
                     {o.status}
