@@ -718,3 +718,18 @@ export const deleteProduct = createServerFn({ method: "POST" })
     await audit(staff, "product.delete", data.id, {});
     return { ok: true };
   });
+
+/** Permanently delete an order (and its delivery jobs) from the ledger. */
+export const deleteOrder = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data) => z.object({ orderId: z.string().uuid() }).parse(data))
+  .handler(async ({ data, context }) => {
+    const staff = await requireStaff(context);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: o } = await supabaseAdmin.from("orders").select("reference").eq("id", data.orderId).maybeSingle();
+    await supabaseAdmin.from("delivery_jobs").delete().eq("order_id", data.orderId);
+    const { error } = await supabaseAdmin.from("orders").delete().eq("id", data.orderId);
+    if (error) throw new Error(error.message);
+    await audit(staff, "order.delete", o?.reference ?? data.orderId, {});
+    return { ok: true };
+  });
