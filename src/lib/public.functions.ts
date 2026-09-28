@@ -122,6 +122,7 @@ export const createOrder = createServerFn({ method: "POST" })
     if (cfg && Number(order.amount) > 0) {
       const currency = cfg.currency || "INR";
       const amount = Math.round(Number(order.amount) * 100);
+      if (amount < 100) throw new Error("Minimum payment is 1.00 — please ask the owner to raise this package price.");
       const res = await fetch("https://api.razorpay.com/v1/orders", {
         method: "POST",
         headers: {
