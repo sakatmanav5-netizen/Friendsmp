@@ -678,6 +678,16 @@ export const createProduct = createServerFn({ method: "POST" })
       .order("sort_order", { ascending: false })
       .limit(1)
       .maybeSingle();
+    const slug = data.name.toLowerCase().replace(/rank|tag|key|crate|coins?/g, "").replace(/[^a-z0-9]+/g, "").trim() || data.id.split("-").pop()!;
+    const amt = Number(data.name.match(/\d+/)?.[0] ?? 100);
+    const grant =
+      data.category === "ranks" ? [`lp user {username} parent add ${slug}`]
+      : data.category === "crates" ? [`crate give {username} ${slug} 1`]
+      : [`eco give {username} ${amt}`];
+    const revoke =
+      data.category === "ranks" ? [`lp user {username} parent remove ${slug}`]
+      : data.category === "crates" ? [`crate take {username} ${slug} 1`]
+      : [`eco take {username} ${amt}`];
     const { error } = await supabaseAdmin.from("products").insert({
       id: data.id,
       category: data.category,
@@ -685,8 +695,8 @@ export const createProduct = createServerFn({ method: "POST" })
       price: data.price,
       blurb: data.blurb,
       perks: [] as never,
-      rcon_commands: [] as never,
-      revoke_commands: [] as never,
+      rcon_commands: grant as never,
+      revoke_commands: revoke as never,
       featured: false,
       active: true,
       sort_order: (last?.sort_order ?? 0) + 1,
@@ -706,5 +716,20 @@ export const deleteProduct = createServerFn({ method: "POST" })
     const { error } = await supabaseAdmin.from("products").delete().eq("id", data.id);
     if (error) throw new Error(error.message);
     await audit(staff, "product.delete", data.id, {});
+    return { ok: true };
+  });
+
+/** Permanently delete an order (and its delivery jobs) from the ledger. */
+export const deleteOrder = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data) => z.object({ orderId: z.string().uuid() }).parse(data))
+  .handler(async ({ data, context }) => {
+    const staff = await requireStaff(context);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: o } = await supabaseAdmin.from("orders").select("reference").eq("id", data.orderId).maybeSingle();
+    await supabaseAdmin.from("delivery_jobs").delete().eq("order_id", data.orderId);
+    const { error } = await supabaseAdmin.from("orders").delete().eq("id", data.orderId);
+    if (error) throw new Error(error.message);
+    await audit(staff, "order.delete", o?.reference ?? data.orderId, {});
     return { ok: true };
   });
