@@ -233,6 +233,7 @@ function Orders({ orders, jobs, onDone }: { orders: any[]; jobs: any[]; onDone: 
   const deliver = useServerFn(markPaidAndDeliver);
   const refund = useServerFn(refundAndRevoke);
   const fix = useServerFn(fixUsername);
+  const delOrder = useServerFn(deleteOrder);
   const { busy, run } = useAction();
   const [q, setQ] = useState("");
   const list = orders.filter((o) =>
@@ -294,6 +295,10 @@ function Orders({ orders, jobs, onDone }: { orders: any[]; jobs: any[]; onDone: 
                           run(() => fix({ data: { orderId: o.id, username: u } }), "Username updated", onDone);
                         }}>Fix name</button>
                       )}
+                      <button disabled={busy} className={`${ghost} text-destructive`} onClick={() => {
+                        if (!confirm(`Delete order ${o.reference} permanently?`)) return;
+                        run(() => delOrder({ data: { orderId: o.id } }), "Order deleted", onDone);
+                      }}>Delete</button>
                     </div>
                   </td>
                 </tr>
@@ -340,7 +345,12 @@ function Products({ products, onDone }: { products: any[]; onDone: () => void })
               <input className={input} value={n.id} onChange={(e) => setN({ ...n, id: e.target.value })} placeholder="rank-elite" />
             </label>
             <label className="block text-[11px] text-muted-foreground">Display name
-              <input className={input} value={n.name} onChange={(e) => setN({ ...n, name: e.target.value })} placeholder="ELITE Rank" />
+              <input className={input} value={n.name} onChange={(e) => {
+                const name = e.target.value;
+                const pre = n.category === "ranks" ? "rank" : n.category === "crates" ? "crate" : "coins";
+                const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+                setN({ ...n, name, id: slug ? `${pre}-${slug}`.slice(0, 40) : "" });
+              }} placeholder="ELITE Rank" />
             </label>
             <label className="block text-[11px] text-muted-foreground">Price
               <input className={input} type="number" step="0.01" value={n.price} onChange={(e) => setN({ ...n, price: e.target.value })} />
