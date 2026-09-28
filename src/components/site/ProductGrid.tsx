@@ -46,7 +46,7 @@ export function ProductGrid({ items }: { items: Product[] }) {
               ))}
             </ul>
             <div className="mt-5 grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3">
-              <span className="font-display text-xl font-black">${p.price.toFixed(2)}</span>
+              <span className="font-display text-xl font-black">₹{p.price.toFixed(2)}</span>
               <button
                 onClick={() => setSelected(p)}
                 className="flex shrink-0 items-center gap-2 rounded-full btn-neon px-4 py-2 text-[11px] font-bold"
@@ -127,7 +127,7 @@ function CheckoutDialog({ product, onClose }: { product: Product; onClose: () =>
             <span className="text-[10px] font-bold tracking-widest text-neon-soft">CHECKOUT</span>
             <h2 className="truncate font-display text-2xl font-black">{product.name}</h2>
             <p className="text-[12px] text-muted-foreground">
-              ${product.price.toFixed(2)} — delivered in-game automatically
+              ₹{product.price.toFixed(2)} — delivered in-game automatically
             </p>
           </div>
           <button
