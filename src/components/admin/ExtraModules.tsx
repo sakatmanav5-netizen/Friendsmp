@@ -201,7 +201,7 @@ function UploadField({
       const key = `${path}-${Date.now()}.${ext}`;
       const { error } = await supabase.storage.from("site-media").upload(key, file, { upsert: true });
       if (error) throw error;
-      const { url } = await createMediaUrl({ data: { key } });
+      const { url } = await sign({ data: { key } });
       onUploaded(url);
       toast.success(`${fieldLabel} uploaded`);
     } catch (e) {
