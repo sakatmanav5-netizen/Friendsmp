@@ -7,12 +7,12 @@ import { byCategory } from "@/lib/catalog";
 export const Route = createFileRoute("/crate-keys")({
   head: () => ({
     meta: [
-      { title: "Crate Keys — FriendSMP" },
+      { title: "Crate Keys — EliteMC" },
       {
         name: "description",
-        content: "Epic, Vote and Monthly crate keys on FriendSMP with instant in-game delivery.",
+        content: "Epic, Vote and Monthly crate keys on EliteMC with instant in-game delivery.",
       },
-      { property: "og:title", content: "FriendSMP Crate Keys" },
+      { property: "og:title", content: "EliteMC Crate Keys" },
       { property: "og:description", content: "Epic • Vote • Monthly keys full of rare loot." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },

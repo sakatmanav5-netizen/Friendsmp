@@ -28,10 +28,10 @@ export const Route = createFileRoute("/fsmp-control")({
   ssr: false,
   head: () => ({
     meta: [
-      { title: "Control — FriendSMP" },
+      { title: "Control — EliteMC" },
       { name: "description", content: "Private staff area." },
       { name: "robots", content: "noindex, nofollow" },
-      { property: "og:title", content: "FriendSMP" },
+      { property: "og:title", content: "EliteMC" },
       { property: "og:description", content: "Private staff area." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },

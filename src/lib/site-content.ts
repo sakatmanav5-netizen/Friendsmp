@@ -19,13 +19,13 @@ export type SiteContent = {
 };
 
 export const defaultContent: SiteContent = {
-  brandPrefix: "Friend",
-  brandSuffix: "SMP",
+  brandPrefix: "Elite",
+  brandSuffix: "MC",
   tagline: "The Ultimate Minecraft Survival Experience",
   heroKicker: "Welcome to",
   heroSubtitle:
     "Join our growing community, explore, build, and become the best player on the server!",
-  serverIp: "play.friendsmp.in",
+  serverIp: "play.elitemc.in",
   version: "1.20.4",
   playerCount: 247,
   storeKicker: "SHOP",

@@ -94,7 +94,7 @@ export const createOrder = createServerFn({ method: "POST" })
     if (productError) throw new Error(productError.message);
     if (!product || !product.active) throw new Error("That package is no longer available.");
 
-    const reference = `FSMP-${Date.now().toString(36).toUpperCase()}-${Math.random()
+    const reference = `EMC-${Date.now().toString(36).toUpperCase()}-${Math.random()
       .toString(36)
       .slice(2, 6)
       .toUpperCase()}`;

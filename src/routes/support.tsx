@@ -10,9 +10,9 @@ import { submitTicket, getTicketStatus, replyAsPlayer } from "@/lib/support.func
 export const Route = createFileRoute("/support")({
   head: () => ({
     meta: [
-      { title: "Support — FriendSMP" },
+      { title: "Support — EliteMC" },
       { name: "description", content: "Submit a support ticket or check the status of an existing one." },
-      { property: "og:title", content: "FriendSMP Support" },
+      { property: "og:title", content: "EliteMC Support" },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],

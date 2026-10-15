@@ -33,13 +33,13 @@ import { useLiveServerStatus } from "@/lib/live-status";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "FriendSMP — The Ultimate Minecraft Survival Experience" },
+      { title: "EliteMC — The Ultimate Minecraft Survival Experience" },
       {
         name: "description",
         content:
-          "Join FriendSMP, a premium Minecraft survival network. Grab ranks, crate keys and coins, and play with a friendly community at play.friendsmp.in.",
+          "Join EliteMC, a premium Minecraft survival network. Grab ranks, crate keys and coins, and play with a friendly community at play.elitemc.in.",
       },
-      { property: "og:title", content: "FriendSMP — Premium Minecraft Survival Network" },
+      { property: "og:title", content: "EliteMC — Premium Minecraft Survival Network" },
       {
         property: "og:description",
         content:
@@ -138,7 +138,7 @@ function Home() {
           <section className="relative overflow-hidden rounded-3xl neon-ring">
             <img
               src={extras.media.heroImage || hero}
-              alt="FriendSMP purple castle world"
+              alt="EliteMC purple castle world"
               width={1600}
               height={912}
               className="absolute inset-0 h-full w-full object-cover"

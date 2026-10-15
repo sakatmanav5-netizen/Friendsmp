@@ -28,12 +28,12 @@ const posts = [
 export const Route = createFileRoute("/news")({
   head: () => ({
     meta: [
-      { title: "News — FriendSMP" },
+      { title: "News — EliteMC" },
       {
         name: "description",
-        content: "Events, updates and store news from the FriendSMP Minecraft survival network.",
+        content: "Events, updates and store news from the EliteMC Minecraft survival network.",
       },
-      { property: "og:title", content: "FriendSMP News" },
+      { property: "og:title", content: "EliteMC News" },
       { property: "og:description", content: "Double XP weekends, map expansions and crate drops." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },

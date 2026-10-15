@@ -79,10 +79,10 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "FriendSMP — Premium Minecraft Survival Network" },
+      { title: "EliteMC — Premium Minecraft Survival Network" },
       {
         name: "description",
-        content: "FriendSMP — a premium Minecraft survival network. Join at play.friendsmp.in.",
+        content: "EliteMC — a premium Minecraft survival network. Join at play.elitemc.in.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },

@@ -7,13 +7,13 @@ import { products } from "@/lib/catalog";
 export const Route = createFileRoute("/store")({
   head: () => ({
     meta: [
-      { title: "Store — FriendSMP" },
+      { title: "Store — EliteMC" },
       {
         name: "description",
         content:
-          "Buy FriendSMP ranks, crate keys and coins. Every purchase is delivered to your Minecraft account automatically.",
+          "Buy EliteMC ranks, crate keys and coins. Every purchase is delivered to your Minecraft account automatically.",
       },
-      { property: "og:title", content: "FriendSMP Store" },
+      { property: "og:title", content: "EliteMC Store" },
       {
         property: "og:description",
         content: "Ranks, crate keys and coins with instant in-game delivery.",
