@@ -733,3 +733,21 @@ export const deleteOrder = createServerFn({ method: "POST" })
     await audit(staff, "order.delete", o?.reference ?? data.orderId, {});
     return { ok: true };
   });
+
+/** Create a long-lived private link for an uploaded site image (staff only). */
+export const createMediaUrl = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data) =>
+    z
+      .object({ key: z.string().regex(/^[a-z0-9-]+\.[a-z0-9]{2,5}$/i, "Invalid media key") })
+      .parse(data),
+  )
+  .handler(async ({ data, context }) => {
+    await requireStaff(context);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: signed, error } = await supabaseAdmin.storage
+      .from("site-media")
+      .createSignedUrl(data.key, 60 * 60 * 24 * 365 * 10);
+    if (error) throw new Error(error.message);
+    return { url: signed.signedUrl };
+  });

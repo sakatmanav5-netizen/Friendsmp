@@ -4,7 +4,7 @@ import { toast } from "sonner";
 import { ArrowDown, ArrowUp, Loader2, UploadCloud } from "lucide-react";
 
 import { supabase } from "@/integrations/supabase/client";
-import { saveDesign, saveMedia, saveSocial, saveServerStatus } from "@/lib/admin.functions";
+import { createMediaUrl, saveDesign, saveMedia, saveSocial, saveServerStatus } from "@/lib/admin.functions";
 import { getLiveServerStatus } from "@/lib/server-status.functions";
 import { defaultDesign, withDesignDefaults, type SiteDesign } from "@/lib/design-tokens";
 
@@ -192,6 +192,7 @@ function UploadField({
   onUploaded: (url: string) => void;
 }) {
   const [busy, setBusy] = useState(false);
+  const sign = useServerFn(createMediaUrl);
 
   const pick = async (file: File) => {
     setBusy(true);
@@ -200,11 +201,8 @@ function UploadField({
       const key = `${path}-${Date.now()}.${ext}`;
       const { error } = await supabase.storage.from("site-media").upload(key, file, { upsert: true });
       if (error) throw error;
-      const signed = await supabase.storage
-        .from("site-media")
-        .createSignedUrl(key, 60 * 60 * 24 * 365 * 10);
-      if (signed.error) throw signed.error;
-      onUploaded(signed.data.signedUrl);
+      const { url } = await sign({ data: { key } });
+      onUploaded(url);
       toast.success(`${fieldLabel} uploaded`);
     } catch (e) {
       toast.error((e as Error).message);
