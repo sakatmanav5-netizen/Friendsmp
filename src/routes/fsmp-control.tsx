@@ -532,8 +532,8 @@ function Bridge({ token, onDone }: { token: string | null; onDone: () => void })
   const rotate = useServerFn(rotateBridgeToken);
   const { busy, run } = useAction();
   const url = `${window.location.origin}/api/public/bridge`;
-  const script = `// friendsmp-bridge.mjs  —  run on your Minecraft server machine:
-// npm i rcon-client   then   node friendsmp-bridge.mjs
+  const script = `// elitemc-bridge.mjs  —  run on your Minecraft server machine:
+// npm i rcon-client   then   node elitemc-bridge.mjs
 import { Rcon } from "rcon-client";
 const API = "${url}";
 const TOKEN = "${token ?? "YOUR_DELIVERY_KEY"}";
