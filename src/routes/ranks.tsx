@@ -7,13 +7,13 @@ import { byCategory } from "@/lib/catalog";
 export const Route = createFileRoute("/ranks")({
   head: () => ({
     meta: [
-      { title: "Ranks — FriendSMP" },
+      { title: "Ranks — EliteMC" },
       {
         name: "description",
-        content: "VIP, MVP and Legend ranks on FriendSMP. Kits, homes, cosmetics and more.",
+        content: "VIP, MVP and Legend ranks on EliteMC. Kits, homes, cosmetics and more.",
       },
-      { property: "og:title", content: "FriendSMP Ranks" },
-      { property: "og:description", content: "VIP • MVP • Legend — unlock perks on FriendSMP." },
+      { property: "og:title", content: "EliteMC Ranks" },
+      { property: "og:description", content: "VIP • MVP • Legend — unlock perks on EliteMC." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],

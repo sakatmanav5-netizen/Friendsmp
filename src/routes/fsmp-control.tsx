@@ -28,10 +28,10 @@ export const Route = createFileRoute("/fsmp-control")({
   ssr: false,
   head: () => ({
     meta: [
-      { title: "Control — FriendSMP" },
+      { title: "Control — EliteMC" },
       { name: "description", content: "Private staff area." },
       { name: "robots", content: "noindex, nofollow" },
-      { property: "og:title", content: "FriendSMP" },
+      { property: "og:title", content: "EliteMC" },
       { property: "og:description", content: "Private staff area." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
@@ -532,8 +532,8 @@ function Bridge({ token, onDone }: { token: string | null; onDone: () => void })
   const rotate = useServerFn(rotateBridgeToken);
   const { busy, run } = useAction();
   const url = `${window.location.origin}/api/public/bridge`;
-  const script = `// friendsmp-bridge.mjs  —  run on your Minecraft server machine:
-// npm i rcon-client   then   node friendsmp-bridge.mjs
+  const script = `// elitemc-bridge.mjs  —  run on your Minecraft server machine:
+// npm i rcon-client   then   node elitemc-bridge.mjs
 import { Rcon } from "rcon-client";
 const API = "${url}";
 const TOKEN = "${token ?? "YOUR_DELIVERY_KEY"}";

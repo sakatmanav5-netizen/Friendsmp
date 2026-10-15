@@ -13,13 +13,13 @@ const team = [
 export const Route = createFileRoute("/staff")({
   head: () => ({
     meta: [
-      { title: "Staff — FriendSMP" },
+      { title: "Staff — EliteMC" },
       {
         name: "description",
-        content: "Meet the FriendSMP staff team — owners, admins, developers and moderators.",
+        content: "Meet the EliteMC staff team — owners, admins, developers and moderators.",
       },
-      { property: "og:title", content: "FriendSMP Staff Team" },
-      { property: "og:description", content: "The people keeping FriendSMP friendly and lag-free." },
+      { property: "og:title", content: "EliteMC Staff Team" },
+      { property: "og:description", content: "The people keeping EliteMC friendly and lag-free." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],

@@ -6,16 +6,16 @@ import { useLiveContent } from "@/lib/live-content";
 export const Route = createFileRoute("/about")({
   head: () => ({
     meta: [
-      { title: "About — FriendSMP" },
+      { title: "About — EliteMC" },
       {
         name: "description",
         content:
-          "FriendSMP is a premium Minecraft survival network built around a friendly community, no lag and active staff.",
+          "EliteMC is a premium Minecraft survival network built around a friendly community, no lag and active staff.",
       },
-      { property: "og:title", content: "About FriendSMP" },
+      { property: "og:title", content: "About EliteMC" },
       {
         property: "og:description",
-        content: "A premium survival network on Minecraft 1.20.4 — join at play.friendsmp.in.",
+        content: "A premium survival network on Minecraft 1.20.4 — join at play.elitemc.in.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -29,13 +29,13 @@ function AboutPage() {
   return (
     <PageShell
       kicker="ABOUT"
-      title="About FriendSMP"
+      title="About EliteMC"
       subtitle="A premium survival network built for players who want to stay."
     >
       <div className="grid gap-4 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)]">
         <div className="rounded-3xl glass p-6 text-[13px] leading-relaxed text-muted-foreground">
           <p>
-            FriendSMP started as a small survival world between friends and grew into a full network.
+            EliteMC started as a small survival world between friends and grew into a full network.
             We keep it simple: vanilla-feeling survival, quality-of-life plugins, and zero
             pay-to-win nonsense. Ranks, crate keys and coins support the server and unlock cosmetics
             and convenience — never raw power.

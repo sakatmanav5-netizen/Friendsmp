@@ -7,12 +7,12 @@ import { byCategory } from "@/lib/catalog";
 export const Route = createFileRoute("/coins")({
   head: () => ({
     meta: [
-      { title: "Coins — FriendSMP" },
+      { title: "Coins — EliteMC" },
       {
         name: "description",
-        content: "Top up 100, 500 or 1000 FriendSMP coins and spend them in the in-game shop.",
+        content: "Top up 100, 500 or 1000 EliteMC coins and spend them in the in-game shop.",
       },
-      { property: "og:title", content: "FriendSMP Coins" },
+      { property: "og:title", content: "EliteMC Coins" },
       { property: "og:description", content: "100 • 500 • 1000 coin packs with bonus coins." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },

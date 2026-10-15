@@ -197,7 +197,7 @@ function openRazorpay(
         order_id: rp.orderId,
         amount: rp.amount,
         currency: rp.currency,
-        name: "FriendSMP",
+        name: "EliteMC",
         description,
         theme: { color: "#8b5cf6" },
         handler: (r: RzpResult) => onPaid(r).then(resolve, reject),
