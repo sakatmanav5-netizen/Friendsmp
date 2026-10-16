@@ -112,7 +112,7 @@ function CheckoutDialog({ product, onClose }: { product: Product; onClose: () =>
   };
 
   if (celebrate) {
-    return <PurchaseCelebration title={celebrate.title} subtitle={celebrate.subtitle} onDone={onClose} />;
+    return <PurchaseCelebration title={celebrate.title} subtitle={celebrate.subtitle} username={username.trim()} itemName={product.name} onDone={onClose} />;
   }
 
   return (
