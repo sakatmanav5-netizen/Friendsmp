@@ -300,26 +300,29 @@
 @utility emc-avatar-look { animation: emc-look 1.4s ease-in-out 1.7s 2 both; }
 @utility emc-pixel { image-rendering: pixelated; }
 @keyframes emc-toast {
-  0% { transform: translateY(-140%); }
-  12%, 85% { transform: translateY(0); }
-  100% { transform: translateY(0); }
+  0% { transform: translateX(calc(-100% - 30px)); }
+  10%, 82% { transform: translateX(0); }
+  100% { transform: translateX(calc(-100% - 30px)); }
 }
 @utility emc-toast {
   position: absolute;
-  top: 14px;
-  right: 14px;
-  z-index: 2;
+  top: 16px;
+  left: 14px;
+  z-index: 3;
   display: flex;
   align-items: center;
   gap: 10px;
-  width: min(300px, calc(100vw - 28px));
-  padding: 8px 12px 8px 8px;
-  background: oklch(0.22 0 0);
-  border: 2px solid oklch(0.1 0 0);
-  box-shadow: inset 0 0 0 2px oklch(0.42 0 0), 0 10px 30px -10px oklch(0 0 0 / 80%);
-  border-radius: 3px;
-  font-family: "Courier New", ui-monospace, monospace;
-  animation: emc-toast 5.5s ease-out 1.1s both;
+  width: min(320px, calc(100vw - 28px));
+  height: 64px;
+  padding: 0 14px 0 12px;
+  background: #212121;
+  border: 2px solid #000;
+  box-shadow: inset 2px 2px 0 #555, inset -2px -2px 0 #0e0e0e, 4px 4px 0 rgb(0 0 0 / 55%);
+  border-radius: 4px;
+  font-family: "Press Start 2P", "Minecraft", "Courier New", ui-monospace, monospace;
+  image-rendering: pixelated;
+  animation: emc-toast 5.5s steps(1, end) 1.1s both;
+  animation-timing-function: ease-out;
 }
 @utility emc-toast-icon {
   display: grid;
@@ -328,18 +331,19 @@
   height: 36px;
   flex-shrink: 0;
   image-rendering: pixelated;
-  color: oklch(0.88 0.17 95);
+  color: #ffff55;
 }
 @utility emc-toast-head {
-  color: oklch(0.88 0.17 95);
-  font-size: 13px;
-  font-weight: 700;
-  text-shadow: 2px 2px 0 oklch(0.3 0.06 90);
+  color: #ffff55;
+  font-size: 10px;
+  line-height: 1.5;
+  text-shadow: 2px 2px 0 #3f3f15;
 }
 @utility emc-toast-title {
-  color: oklch(0.98 0 0);
-  font-size: 13px;
-  text-shadow: 2px 2px 0 oklch(0.25 0 0);
+  color: #ffffff;
+  font-size: 10px;
+  line-height: 1.6;
+  text-shadow: 2px 2px 0 #3f3f3f;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
