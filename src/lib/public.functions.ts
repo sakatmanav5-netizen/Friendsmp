@@ -174,7 +174,8 @@ export const verifyPayment = createServerFn({ method: "POST" })
     const { data: order } = await supabaseAdmin
       .from("orders")
       .select("id")
-      .eq("payment_ref", data.orderId)
+      .in("payment_ref", [data.orderId, data.paymentId])
+      .limit(1)
       .maybeSingle();
     if (!order) throw new Error("Order not found.");
     await payAndQueue(supabaseAdmin, order.id, data.paymentId);
