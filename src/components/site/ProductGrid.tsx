@@ -9,7 +9,8 @@ import type { Product } from "@/lib/catalog";
 import { createOrder, getSiteData, verifyPayment } from "@/lib/public.functions";
 import { PurchaseCelebration } from "@/components/site/PurchaseCelebration";
 
-const USERNAME_RE = /^[A-Za-z0-9_]{3,16}$/;
+// Java: 3-16 letters/digits/underscore. Bedrock (Geyser): leading "." and spaces allowed.
+const USERNAME_RE = /^\.?[A-Za-z0-9_][A-Za-z0-9_ ]{1,14}[A-Za-z0-9_]$/;
 
 export function ProductGrid({ items }: { items: Product[] }) {
   const [selected, setSelected] = useState<Product | null>(null);
