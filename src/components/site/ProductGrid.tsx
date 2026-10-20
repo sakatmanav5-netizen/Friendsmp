@@ -16,8 +16,17 @@ export function ProductGrid({ items }: { items: Product[] }) {
   const fetchSite = useServerFn(getSiteData);
   const { data } = useQuery({ queryKey: ["site"], queryFn: () => fetchSite() });
   if (data) {
-    const cats = new Set(items.map((i) => i.category));
-    items = data.products.filter((p) => cats.has(p.category as Product["category"])) as Product[];
+    const norm = (c: string) => {
+      const s = String(c || "").toLowerCase().trim().replace(/s$/, "");
+      if (s === "tag" || s === "rank") return "rank";
+      if (s === "crate" || s === "key" || s === "crate-key" || s === "crate key") return "crate";
+      if (s === "coin") return "coins";
+      return s;
+    };
+    const cats = new Set(items.map((i) => norm(i.category)));
+    items = data.products
+      .filter((p) => cats.has(norm(p.category)))
+      .map((p) => ({ ...p, category: norm(p.category) })) as Product[];
   }
 
   return (
