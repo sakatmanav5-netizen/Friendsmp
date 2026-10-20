@@ -75,7 +75,8 @@ const orderInput = z.object({
   username: z
     .string()
     .trim()
-    .regex(/^[A-Za-z0-9_]{3,16}$/, "Enter a valid Minecraft username"),
+    // Java: letters/digits/underscore. Bedrock (Geyser): leading "." and spaces allowed.
+    .regex(/^\.?[A-Za-z0-9_][A-Za-z0-9_ ]{1,14}[A-Za-z0-9_]$/, "Enter a valid Minecraft username"),
   email: z.string().trim().email().max(255).optional().or(z.literal("")),
 });
 
